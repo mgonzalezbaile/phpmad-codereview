@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\PullRequest;
+use App\Service\KataMailerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,8 +15,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PullRequestController extends AbstractController
 {
-
-
     /**
      * @Route(methods={"POST"})
      */
@@ -30,6 +29,7 @@ class PullRequestController extends AbstractController
             return new JsonResponse(array('error' => 'Code is required'), Response::HTTP_CONFLICT);
         }
 
+        // Create Pull Request
         $pullRequest = new PullRequest();
         $pullRequest->setCode($code);
         $pullRequest->setWriter($writer);
@@ -37,6 +37,17 @@ class PullRequestController extends AbstractController
         $pullRequest->setRevisionDueDate($revisionDueDate);
         $pullRequest->setIsMerged(false);
         $pullRequest->setAssignedReviewers($assignedReviewers);
+
+        // Send notification to reviewers
+        foreach ( $pullRequest->getAssignedReviewers() as $assignedReviewer )
+        {
+            (new KataMailerService())->send(
+                "Hello reviewer, You have a pull request to review.",
+                $assignedReviewer
+            );
+        }
+
+        // Persist
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($pullRequest);
         $entityManager->flush();
@@ -46,11 +57,15 @@ class PullRequestController extends AbstractController
 
 
     /**
-     * @Route("/{id}/edit", name="pull_request_edit", methods={"POST"})
+     * @Route("/{id}", name="pull_request_edit", methods={"PUT"})
      */
     public function edit(Request $request, PullRequest $pullRequest): JsonResponse
     {
         $code = $request->get('code');
+        if (empty($code)) {
+            return new JsonResponse(array('error' => 'Code is required'), Response::HTTP_CONFLICT);
+        }
+
         $pullRequest->setCode($code);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($pullRequest);

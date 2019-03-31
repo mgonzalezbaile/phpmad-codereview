@@ -64,14 +64,9 @@ class PullRequestSubscriber implements EventSubscriber
             foreach ( $entity->getAssignedReviewers() as $assignedReviewer )
             {
                 $quote += 10000;
-                (new KataMailerService())->send(
-                    "Hello reviewer, You have a pull request to review.",
-                    $assignedReviewer
-                );
             }
 
             $entity->setQuote($quote);
-
         }
     }
 }
