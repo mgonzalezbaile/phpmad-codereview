@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\KataMailerService;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -94,6 +95,14 @@ class PullRequest
 
     public function setAssignedReviewers(array $assignedReviewers): self
     {
+        foreach ( $assignedReviewers as $assignedReviewer )
+        {
+            (new KataMailerService())->send(
+                "Hello reviewer, You have a pull request to review.",
+                $assignedReviewer
+            );
+        }
+
         $this->assignedReviewers = $assignedReviewers;
 
         return $this;
