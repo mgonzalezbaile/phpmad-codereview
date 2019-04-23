@@ -95,14 +95,6 @@ class PullRequest
 
     public function setAssignedReviewers(array $assignedReviewers): self
     {
-        foreach ( $assignedReviewers as $assignedReviewer )
-        {
-            (new KataMailerService())->send(
-                "Hello reviewer, You have a pull request to review.",
-                $assignedReviewer
-            );
-        }
-
         $this->assignedReviewers = $assignedReviewers;
 
         return $this;
