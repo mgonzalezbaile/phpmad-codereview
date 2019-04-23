@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\PullRequest;
 use App\Service\KataMailerService;
+use App\UseCase\CreatePullRequestCommand;
+use App\UseCase\CreatePullRequestUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,21 +25,13 @@ class PullRequestController extends AbstractController
         $writer = $request->get('writer');
         $code = $request->get('code');
         $assignedReviewers = $request->get('assignedReviewers');
-        $revisionDueDate = \DateTime::createFromFormat('Y-m-d', $request->get('revisionDueDate'));
+        $revisionDueDate = $request->get('revisionDueDate');
 
-        // Validation
-        if (empty($code)) {
-            return new JsonResponse(array('error' => 'Code is required'), Response::HTTP_CONFLICT);
+        try {
+            $pullRequest = (new CreatePullRequestUseCase())->execute(new CreatePullRequestCommand($code, $writer, $revisionDueDate, $assignedReviewers));
+        } catch (\DomainException $exception){
+            return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
-
-        // Create Pull Request
-        $pullRequest = new PullRequest();
-        $pullRequest->setCode($code);
-        $pullRequest->setWriter($writer);
-        $pullRequest->setCreatedAt(new \DateTime());
-        $pullRequest->setRevisionDueDate($revisionDueDate);
-        $pullRequest->setIsMerged(false);
-        $pullRequest->setAssignedReviewers($assignedReviewers);
 
         // Persist
         $entityManager = $this->getDoctrine()->getManager();
