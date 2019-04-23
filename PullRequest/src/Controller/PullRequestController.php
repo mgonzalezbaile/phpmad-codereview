@@ -25,6 +25,7 @@ class PullRequestController extends AbstractController
         $assignedReviewers = $request->get('assignedReviewers');
         $revisionDueDate = \DateTime::createFromFormat('Y-m-d', $request->get('revisionDueDate'));
 
+        // Validation
         if (empty($code)) {
             return new JsonResponse(array('error' => 'Code is required'), Response::HTTP_CONFLICT);
         }
@@ -37,15 +38,6 @@ class PullRequestController extends AbstractController
         $pullRequest->setRevisionDueDate($revisionDueDate);
         $pullRequest->setIsMerged(false);
         $pullRequest->setAssignedReviewers($assignedReviewers);
-
-        // Send notification to reviewers
-        foreach ( $pullRequest->getAssignedReviewers() as $assignedReviewer )
-        {
-            (new KataMailerService())->send(
-                "Hello reviewer, You have a pull request to review.",
-                $assignedReviewer
-            );
-        }
 
         // Persist
         $entityManager = $this->getDoctrine()->getManager();
