@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\PullRequest;
-use App\Service\KataMailerService;
+use App\UseCase\CalculateQuoteCommand;
+use App\UseCase\CalculateQuoteUseCase;
 use App\UseCase\CreatePullRequestCommand;
 use App\UseCase\CreatePullRequestUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,6 +30,8 @@ class PullRequestController extends AbstractController
 
         try {
             $pullRequest = (new CreatePullRequestUseCase())->execute(new CreatePullRequestCommand($code, $writer, $revisionDueDate, $assignedReviewers));
+            $quote = (new CalculateQuoteUseCase())->execute(new CalculateQuoteCommand($code, $revisionDueDate, $assignedReviewers));
+            $pullRequest->setQuote($quote);
         } catch (\DomainException $exception){
             return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
