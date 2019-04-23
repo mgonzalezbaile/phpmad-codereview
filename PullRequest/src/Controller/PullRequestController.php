@@ -3,13 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\PullRequest;
-use App\Service\KataMailerService;
-use App\UseCase\CalculateQuoteCommand;
-use App\UseCase\CalculateQuoteUseCase;
-use App\UseCase\CreatePullRequestCommand;
-use App\UseCase\CreatePullRequestUseCase;
-use App\UseCase\NotifyPullRequestCreationToReviewerCommand;
-use App\UseCase\NotifyPullRequestCreationToReviewerUseCase;
+use App\UseCase\ProcessPullRequestCreation;
+use App\UseCase\ProcessPullRequestCreationCommand;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +18,22 @@ use Symfony\Component\Routing\Annotation\Route;
 class PullRequestController extends AbstractController
 {
     /**
+     * @var ObjectManager
+     */
+    private $objectManager;
+
+    /**
+     * @var ProcessPullRequestCreation
+     */
+    private $processPullRequestCreation;
+
+    public function __construct(ObjectManager $objectManager, ProcessPullRequestCreation $processPullRequestCreation)
+    {
+        $this->objectManager            = $objectManager;
+        $this->processPullRequestCreation = $processPullRequestCreation;
+    }
+
+    /**
      * @Route(methods={"POST"})
      */
     public function new(Request $request): JsonResponse
@@ -32,22 +44,14 @@ class PullRequestController extends AbstractController
         $revisionDueDate = $request->get('revisionDueDate');
 
         try {
-            $pullRequest = (new CreatePullRequestUseCase())->execute(new CreatePullRequestCommand($code, $writer, $revisionDueDate, $assignedReviewers));
-            $quote = (new CalculateQuoteUseCase())->execute(new CalculateQuoteCommand($code, $revisionDueDate, $assignedReviewers));
-            $pullRequest->setQuote($quote);
-            foreach ( $assignedReviewers as $assignedReviewer )
-            {
-                (new NotifyPullRequestCreationToReviewerUseCase(new KataMailerService()))->execute(new NotifyPullRequestCreationToReviewerCommand($assignedReviewer));
-            }
-
+            $pullRequest = $this->processPullRequestCreation->execute(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
         } catch (\DomainException $exception){
             return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
 
         // Persist
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($pullRequest);
-        $entityManager->flush();
+        $this->objectManager->persist($pullRequest);
+        $this->objectManager->flush();
 
         return new JsonResponse(array("id" => $pullRequest->getId()), Response::HTTP_CREATED);
     }
