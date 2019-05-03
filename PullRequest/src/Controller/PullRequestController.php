@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\PullRequest;
-use App\Service\KataMailerService;
+use App\UseCase\ProcessPullRequestCreation;
+use App\UseCase\ProcessPullRequestCreationCommand;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +18,22 @@ use Symfony\Component\Routing\Annotation\Route;
 class PullRequestController extends AbstractController
 {
     /**
+     * @var ObjectManager
+     */
+    private $objectManager;
+
+    /**
+     * @var ProcessPullRequestCreation
+     */
+    private $processPullRequestCreation;
+
+    public function __construct(ObjectManager $objectManager, ProcessPullRequestCreation $processPullRequestCreation)
+    {
+        $this->objectManager            = $objectManager;
+        $this->processPullRequestCreation = $processPullRequestCreation;
+    }
+
+    /**
      * @Route(methods={"POST"})
      */
     public function new(Request $request): JsonResponse
@@ -23,26 +41,17 @@ class PullRequestController extends AbstractController
         $writer = $request->get('writer');
         $code = $request->get('code');
         $assignedReviewers = $request->get('assignedReviewers');
-        $revisionDueDate = \DateTime::createFromFormat('Y-m-d', $request->get('revisionDueDate'));
+        $revisionDueDate = $request->get('revisionDueDate');
 
-        // Validation
-        if (empty($code)) {
-            return new JsonResponse(array('error' => 'Code is required'), Response::HTTP_CONFLICT);
+        try {
+            $pullRequest = $this->processPullRequestCreation->execute(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
+        } catch (\DomainException $exception){
+            return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
 
-        // Create Pull Request
-        $pullRequest = new PullRequest();
-        $pullRequest->setCode($code);
-        $pullRequest->setWriter($writer);
-        $pullRequest->setCreatedAt(new \DateTime());
-        $pullRequest->setRevisionDueDate($revisionDueDate);
-        $pullRequest->setIsMerged(false);
-        $pullRequest->setAssignedReviewers($assignedReviewers);
-
         // Persist
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($pullRequest);
-        $entityManager->flush();
+        $this->objectManager->persist($pullRequest);
+        $this->objectManager->flush();
 
         return new JsonResponse(array("id" => $pullRequest->getId()), Response::HTTP_CREATED);
     }

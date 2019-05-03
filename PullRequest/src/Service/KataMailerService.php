@@ -3,7 +3,7 @@
 namespace App\Service;
 
 
-class KataMailerService
+class KataMailerService implements MailerService
 {
     public function send(string $content, string $recipients): void
     {
