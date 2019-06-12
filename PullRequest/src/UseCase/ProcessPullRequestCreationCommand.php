@@ -4,7 +4,7 @@
 namespace App\UseCase;
 
 
-class ProcessPullRequestCreationCommand
+class ProcessPullRequestCreationCommand implements Command
 {
     /**
      * @var string

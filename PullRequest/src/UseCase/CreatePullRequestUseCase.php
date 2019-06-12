@@ -6,9 +6,12 @@ namespace App\UseCase;
 
 use App\Entity\PullRequest;
 
-class CreatePullRequestUseCase
+class CreatePullRequestUseCase implements IExecuteCommand
 {
-    public function execute(CreatePullRequestCommand $command): PullRequest
+    /**
+     * @param CreatePullRequestCommand $command
+     */
+    public function execute(Command $command): PullRequest
     {
         // Validation
         if (empty($command->code())) {

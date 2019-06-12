@@ -6,7 +6,7 @@ namespace App\UseCase;
 
 use App\Service\MailerService;
 
-class NotifyPullRequestCreationToReviewerUseCase
+class NotifyPullRequestCreationToReviewerUseCase implements IExecuteCommand
 {
     /**
      * @var MailerService
@@ -18,7 +18,10 @@ class NotifyPullRequestCreationToReviewerUseCase
         $this->mailerService = $mailerService;
     }
 
-    public function execute(NotifyPullRequestCreationToReviewerCommand $command): void
+    /**
+     * @param NotifyPullRequestCreationToReviewerCommand $command
+     */
+    public function execute(Command $command): void
     {
         $this->mailerService->send('Hello reviewer, You have a pull request to review.', $command->reviewer());
     }

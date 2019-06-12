@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\PullRequest;
+use App\UseCase\IExecuteCommand;
 use App\UseCase\ProcessPullRequestCreation;
 use App\UseCase\ProcessPullRequestCreationCommand;
-use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,18 +18,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class PullRequestController extends AbstractController
 {
     /**
-     * @var ObjectManager
-     */
-    private $objectManager;
-
-    /**
      * @var ProcessPullRequestCreation
      */
     private $processPullRequestCreation;
 
-    public function __construct(ObjectManager $objectManager, ProcessPullRequestCreation $processPullRequestCreation)
+    public function __construct(IExecuteCommand $processPullRequestCreation)
     {
-        $this->objectManager            = $objectManager;
         $this->processPullRequestCreation = $processPullRequestCreation;
     }
 
@@ -48,10 +42,6 @@ class PullRequestController extends AbstractController
         } catch (\DomainException $exception){
             return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
-
-        // Persist
-        $this->objectManager->persist($pullRequest);
-        $this->objectManager->flush();
 
         return new JsonResponse(array("id" => $pullRequest->getId()), Response::HTTP_CREATED);
     }

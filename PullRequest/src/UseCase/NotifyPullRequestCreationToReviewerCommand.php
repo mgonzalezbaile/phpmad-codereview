@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\UseCase;
 
-class NotifyPullRequestCreationToReviewerCommand
+class NotifyPullRequestCreationToReviewerCommand implements Command
 {
     /**
      * @var string

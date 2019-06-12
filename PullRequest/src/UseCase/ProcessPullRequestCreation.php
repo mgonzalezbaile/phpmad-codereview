@@ -7,7 +7,7 @@ namespace App\UseCase;
 use App\Entity\PullRequest;
 use App\Service\MailerService;
 
-class ProcessPullRequestCreation
+class ProcessPullRequestCreation implements IExecuteCommand
 {
     private $mailerService;
 
@@ -16,7 +16,10 @@ class ProcessPullRequestCreation
         $this->mailerService = $mailerService;
     }
 
-    public function execute(ProcessPullRequestCreationCommand $command): PullRequest
+    /**
+     * @param ProcessPullRequestCreationCommand $command
+     */
+    public function execute(Command $command): PullRequest
     {
         $pullRequest = (new CreatePullRequestUseCase())->execute(new CreatePullRequestCommand($command->code(), $command->writer(), $command->revisionDueDate(), $command->assignedReviewers()));
         $quote       = (new CalculateQuoteUseCase())->execute(new CalculateQuoteCommand($command->code(), $command->revisionDueDate(), $command->assignedReviewers()));

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class PullRequestControllerTest extends WebTestCase
@@ -31,7 +31,7 @@ class PullRequestControllerTest extends WebTestCase
         );
 
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $objectManager = $client->getContainer()->get(ObjectManager::class);
+        $objectManager = $client->getContainer()->get(EntityManagerInterface::class);
         $this->assertEquals(true, $objectManager->isPersistCalled());
         $this->assertEquals(true, $objectManager->isFlushCalled());
     }

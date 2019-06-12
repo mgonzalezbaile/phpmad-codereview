@@ -28,3 +28,45 @@ services:
     App\EventSubscriber\PullRequestSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
+
+    App\UseCase\ProcessPullRequestCreationPersistDecoration:
+        class: App\UseCase\PersistEntityUseCaseDecorator
+        public: false
+        decorates: App\UseCase\ProcessPullRequestCreation
+        decoration_priority: 1
+        arguments:
+            - '@App\UseCase\ProcessPullRequestCreationPersistDecoration.inner'
+            - '@Doctrine\ORM\EntityManagerInterface'
+
+    App\UseCase\ProcessPullRequestCreationTraceDecoration:
+        class: App\UseCase\TraceUseCaseDecorator
+        public: false
+        decorates: App\UseCase\ProcessPullRequestCreation
+        decoration_priority: 2
+        arguments:
+            - '@App\UseCase\ProcessPullRequestCreationTraceDecoration.inner'
+            - '@Psr\Log\LoggerInterface'
+
+#   TODO: To decorate services we have to repeat again and again the decoration structure
+#    App\UseCase\ProcessPullRequestCreationPersistDecoration:
+#        class: App\UseCase\PersistEntityUseCaseDecorator
+#        public: false
+#        decorates: App\UseCase\ProcessPullRequestCreation
+#        decoration_priority: 1
+#        arguments:
+#            - '@App\UseCase\ProcessPullRequestCreationPersistDecoration.inner'
+#            - '@Doctrine\ORM\EntityManagerInterface'
+#
+#    App\UseCase\ProcessPullRequestCreationTraceDecoration:
+#        class: App\UseCase\TraceUseCaseDecorator
+#        public: false
+#        decorates: App\UseCase\ProcessPullRequestCreation
+#        decoration_priority: 2
+#        arguments:
+#            - '@App\UseCase\ProcessPullRequestCreationTraceDecoration.inner'
+#            - '@Psr\Log\LoggerInterface'
+
+    App\Controller\PullRequestController:
+        class: App\Controller\PullRequestController
+        arguments:
+            - '@App\UseCase\ProcessPullRequestCreation'

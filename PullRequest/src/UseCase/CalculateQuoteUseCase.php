@@ -3,9 +3,12 @@
 
 namespace App\UseCase;
 
-class CalculateQuoteUseCase
+class CalculateQuoteUseCase implements IExecuteCommand
 {
-    public function execute(CalculateQuoteCommand $command): int
+    /**
+     * @param CalculateQuoteCommand $command
+     */
+    public function execute(Command $command): int
     {
         $quote     = 0;
         $codeLines = substr_count($command->code(), "\n");

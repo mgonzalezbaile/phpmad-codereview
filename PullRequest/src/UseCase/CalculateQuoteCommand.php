@@ -4,7 +4,7 @@
 namespace App\UseCase;
 
 
-class CalculateQuoteCommand
+class CalculateQuoteCommand implements Command
 {
     /**
      * @var string

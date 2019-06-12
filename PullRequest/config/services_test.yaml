@@ -3,6 +3,6 @@ services:
     class: 'App\Tests\Double\MailerServiceSpy'
     public: true
 
-  Doctrine\Common\Persistence\ObjectManager:
-    class: 'App\Tests\Double\ObjectManagerSpy'
+  Doctrine\ORM\EntityManagerInterface:
+    class: 'App\Tests\Double\EntityManagerSpy'
     public: true
