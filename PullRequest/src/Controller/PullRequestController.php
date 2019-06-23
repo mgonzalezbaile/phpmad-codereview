@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\PullRequest;
-use App\UseCase\IExecuteCommand;
+use App\Middleware\CommonCommandBus;
 use App\UseCase\ProcessPullRequestCreation;
 use App\UseCase\ProcessPullRequestCreationCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,13 +18,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class PullRequestController extends AbstractController
 {
     /**
-     * @var ProcessPullRequestCreation
+     * @var CommonCommandBus
      */
-    private $processPullRequestCreation;
+    private $commandBus;
 
-    public function __construct(IExecuteCommand $processPullRequestCreation)
+    public function __construct(CommonCommandBus $commandBus)
     {
-        $this->processPullRequestCreation = $processPullRequestCreation;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -38,7 +38,10 @@ class PullRequestController extends AbstractController
         $revisionDueDate = $request->get('revisionDueDate');
 
         try {
-            $pullRequest = $this->processPullRequestCreation->execute(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
+            /** @var PullRequest $pullRequest */
+            $pullRequest = $this->commandBus
+                ->withUseCase(ProcessPullRequestCreation::class)
+                ->execute(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
         } catch (\DomainException $exception){
             return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
