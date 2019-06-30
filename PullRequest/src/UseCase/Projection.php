@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace App\UseCase;
 
-interface Command
+interface Projection
 {
 }

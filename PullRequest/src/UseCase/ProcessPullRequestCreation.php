@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
-
-use App\Entity\PullRequest;
 use App\Service\MailerService;
 
-class ProcessPullRequestCreation implements IExecuteCommand
+class ProcessPullRequestCreation implements CommandHandler
 {
     private $mailerService;
 
@@ -19,13 +18,13 @@ class ProcessPullRequestCreation implements IExecuteCommand
     /**
      * @param ProcessPullRequestCreationCommand $command
      */
-    public function execute(Command $command): PullRequest
+    public function handle(Command $command): DomainEventList
     {
-        $pullRequest = (new CreatePullRequestUseCase())->execute(new CreatePullRequestCommand($command->code(), $command->writer(), $command->revisionDueDate(), $command->assignedReviewers()));
-        $quote       = (new CalculateQuoteUseCase())->execute(new CalculateQuoteCommand($command->code(), $command->revisionDueDate(), $command->assignedReviewers()));
+        $pullRequest = (new CreatePullRequestUseCase())->handle(new CreatePullRequestCommand($command->code(), $command->writer(), $command->revisionDueDate(), $command->assignedReviewers()));
+        $quote       = (new CalculateQuoteUseCase())->handle(new CalculateQuoteCommand($command->code(), $command->revisionDueDate(), $command->assignedReviewers()));
         $pullRequest->setQuote($quote);
         foreach ($command->assignedReviewers() as $assignedReviewer) {
-            (new NotifyPullRequestCreationToReviewerUseCase($this->mailerService))->execute(new NotifyPullRequestCreationToReviewerCommand($assignedReviewer));
+            (new NotifyPullRequestCreationToReviewerUseCase($this->mailerService))->handle(new NotifyPullRequestCreationToReviewerCommand($assignedReviewer));
         }
 
         return $pullRequest;

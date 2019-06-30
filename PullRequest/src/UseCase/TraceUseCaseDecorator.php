@@ -1,15 +1,15 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
-
 use Psr\Log\LoggerInterface;
 
-class TraceUseCaseDecorator implements IExecuteCommand
+class TraceUseCaseDecorator implements CommandHandler
 {
     /**
-     * @var IExecuteCommand
+     * @var CommandHandler
      */
     private $useCase;
 
@@ -18,16 +18,16 @@ class TraceUseCaseDecorator implements IExecuteCommand
      */
     private $logger;
 
-    public function __construct(IExecuteCommand $useCase, LoggerInterface $logger)
+    public function __construct(CommandHandler $useCase, LoggerInterface $logger)
     {
         $this->useCase = $useCase;
-        $this->logger = $logger;
+        $this->logger  = $logger;
     }
 
-    public function execute(Command $command)
+    public function handle(Command $command)
     {
         $this->logger->info('START USE CASE');
-        $result = $this->useCase->execute($command);
+        $result = $this->useCase->handle($command);
         $this->logger->info('END USE CASE');
 
         return $result;

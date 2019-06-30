@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventSubscriber;
 
 use function json_last_error;
@@ -13,20 +15,21 @@ class BeforeActionSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             KernelEvents::CONTROLLER => 'convertJsonStringToArray',
-        );
+        ];
     }
+
     public function convertJsonStringToArray(FilterControllerEvent $event)
     {
         $request = $event->getRequest();
-        if ($request->getContentType() != 'json' || !$request->getContent()) {
+        if ('json' != $request->getContentType() || !$request->getContent()) {
             return;
         }
         $data = json_decode($request->getContent(), true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (JSON_ERROR_NONE !== json_last_error()) {
             throw new BadRequestHttpException('invalid json body: ' . json_last_error_msg());
         }
-        $request->request->replace(is_array($data) ? $data : array());
+        $request->request->replace(is_array($data) ? $data : []);
     }
 }

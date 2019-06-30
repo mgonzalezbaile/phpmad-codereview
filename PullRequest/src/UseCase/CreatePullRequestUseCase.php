@@ -1,32 +1,49 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
+use App\Entity\PullRequestProjection;
+use App\Event\CreatePullRequestFailed;
+use App\Event\PullRequestCreated;
+use DateTimeImmutable;
 
-use App\Entity\PullRequest;
-
-class CreatePullRequestUseCase implements IExecuteCommand
+class CreatePullRequestUseCase implements CommandHandler
 {
     /**
      * @param CreatePullRequestCommand $command
      */
-    public function execute(Command $command): PullRequest
+    public function handle(Command $command): DomainEventList
     {
-        // Validation
         if (empty($command->code())) {
-            throw new \DomainException('Code cannot be empty');
+            return DomainEventList::fromDomainEvents(CreatePullRequestFailed::dueTo('Wrong revision due date format given: ' . $command->revisionDueDate()));
         }
 
-        // Create Pull Request
-        $pullRequest = new PullRequest();
-        $pullRequest->setCode($command->code());
-        $pullRequest->setWriter($command->writer());
-        $pullRequest->setCreatedAt(new \DateTime());
-        $pullRequest->setRevisionDueDate(\DateTime::createFromFormat('Y-m-d', $command->revisionDueDate()));
-        $pullRequest->setIsMerged(false);
-        $pullRequest->setAssignedReviewers($command->assignedReviewers());
+        $revisionDate = DateTimeImmutable::createFromFormat('Y-m-d', $command->revisionDueDate());
+        if (!$revisionDate) {
+            return DomainEventList::fromDomainEvents(CreatePullRequestFailed::dueTo('Wrong revision due date format given: ' . $command->revisionDueDate()));
+        }
 
-        return $pullRequest;
+        return DomainEventList::fromDomainEvents(new PullRequestCreated(
+            $command->id(),
+            $command->code(),
+            $command->writer(),
+            $revisionDate,
+            $command->assignedReviewers()
+        ));
+    }
+
+    public function projectPullRequestCreated(PullRequestCreated $event, ?PullRequestProjection $projection): ProjectionList
+    {
+        $projection = (new PullRequestProjection())
+            ->withId($event->streamId())
+            ->withCode($event->code())
+            ->withWriter($event->writer())
+            ->withRevisionDueDate($event->revisionDueDate())
+            ->withIsMerged(false)
+            ->withAssignedReviewers($event->assignedReviewers());
+
+        return ProjectionList::fromProjections($projection);
     }
 }

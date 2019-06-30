@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Tests\UseCase;
-
 
 use App\UseCase\CalculateQuoteCommand;
 use App\UseCase\CalculateQuoteUseCase;
@@ -17,7 +17,7 @@ class CalculateQuoteUseCaseTest extends TestCase
     {
         $useCase = new CalculateQuoteUseCase();
 
-        $quote = $useCase->execute(
+        $quote = $useCase->handle(
             new CalculateQuoteCommand(
                 $code,
                 $revisionDueDate,

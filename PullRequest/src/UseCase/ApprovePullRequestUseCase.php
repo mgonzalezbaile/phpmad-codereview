@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\UseCase;
+
+use App\Entity\PullRequestProjection;
+use App\Event\ApprovePullRequestFailed;
+use App\Event\PullRequestApproved;
+use App\Repository\PullRequestRepository;
+
+class ApprovePullRequestUseCase implements CommandHandler
+{
+    /**
+     * @var PullRequestRepository
+     */
+    private $repository;
+
+    public function __construct(PullRequestRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * @param ApprovePullRequestCommand $command
+     */
+    public function handle(Command $command): DomainEventList
+    {
+        $pullRequest = $this->repository->ofId($command->pullRequestId());
+
+        if (!PullRequest::approverCanApprove($pullRequest, $command->approver())) {
+            return DomainEventList::fromDomainEvents(ApprovePullRequestFailed::dueTo($command->pullRequestId(), ApprovePullRequestFailed::APPROVER_CANNOT_APPROVE_REASON));
+        }
+
+        return DomainEventList::fromDomainEvents(new PullRequestApproved($command->pullRequestId(), $command->approver()));
+    }
+
+    public function projectPullRequestApproved(PullRequestApproved $event, PullRequestProjection $projection): ProjectionList
+    {
+        $projection = $projection->withApprovers(array_merge($projection->approvers(), [$event->approver()]));
+
+        return ProjectionList::fromProjections($projection);
+    }
+
+    public function projectApprovePullRequestFailed(ApprovePullRequestFailed $event, PullRequestProjection $projection): ProjectionList
+    {
+        return ProjectionList::fromProjections($projection);
+    }
+}

@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Tests\UseCase;
-
 
 use App\Tests\Double\MailerServiceSpy;
 use App\UseCase\ProcessPullRequestCreation;
@@ -19,7 +19,7 @@ class ProcessPullRequestCreationTest extends TestCase
         $code              = 'code';
         $assignedReviewers = ['reviewer1'];
         $revisionDueDate   = '2019-01-01';
-        $pullRequest       = (new ProcessPullRequestCreation($mailerSpy))->execute(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
+        $pullRequest       = (new ProcessPullRequestCreation($mailerSpy))->handle(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
 
         $this->assertEquals($writer, $pullRequest->getWriter());
         $this->assertEquals($code, $pullRequest->getCode());

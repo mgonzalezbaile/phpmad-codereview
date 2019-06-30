@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Entity\PullRequest;
-use App\Middleware\CommonCommandBus;
+use App\Entity\PullRequestProjection;
+use App\Middleware\CommonCommandHandlerBus;
+use App\Repository\PullRequestProjectionPersistence;
 use App\UseCase\ProcessPullRequestCreation;
 use App\UseCase\ProcessPullRequestCreationCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,11 +21,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class PullRequestController extends AbstractController
 {
     /**
-     * @var CommonCommandBus
+     * @var CommonCommandHandlerBus
      */
     private $commandBus;
 
-    public function __construct(CommonCommandBus $commandBus)
+    public function __construct(CommonCommandHandlerBus $commandBus)
     {
         $this->commandBus = $commandBus;
     }
@@ -32,32 +35,32 @@ class PullRequestController extends AbstractController
      */
     public function new(Request $request): JsonResponse
     {
-        $writer = $request->get('writer');
-        $code = $request->get('code');
+        $writer            = $request->get('writer');
+        $code              = $request->get('code');
         $assignedReviewers = $request->get('assignedReviewers');
-        $revisionDueDate = $request->get('revisionDueDate');
+        $revisionDueDate   = $request->get('revisionDueDate');
 
         try {
-            /** @var PullRequest $pullRequest */
+            /** @var PullRequestProjection $pullRequest */
             $pullRequest = $this->commandBus
                 ->withUseCase(ProcessPullRequestCreation::class)
-                ->execute(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
-        } catch (\DomainException $exception){
+                ->withProjectionPersistence(PullRequestProjectionPersistence::class)
+                ->handle(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
+        } catch (\DomainException $exception) {
             return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
 
-        return new JsonResponse(array("id" => $pullRequest->getId()), Response::HTTP_CREATED);
+        return new JsonResponse(['id' => $pullRequest->getId()], Response::HTTP_CREATED);
     }
-
 
     /**
      * @Route("/{id}", name="pull_request_edit", methods={"PUT"})
      */
-    public function edit(Request $request, PullRequest $pullRequest): JsonResponse
+    public function edit(Request $request, PullRequestProjection $pullRequest): JsonResponse
     {
         $code = $request->get('code');
         if (empty($code)) {
-            return new JsonResponse(array('error' => 'Code is required'), Response::HTTP_CONFLICT);
+            return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
         }
 
         $pullRequest->setCode($code);
@@ -65,6 +68,6 @@ class PullRequestController extends AbstractController
         $entityManager->persist($pullRequest);
         $entityManager->flush();
 
-        return new JsonResponse(array("id" => $pullRequest->getId()));
+        return new JsonResponse(['id' => $pullRequest->getId()]);
     }
 }

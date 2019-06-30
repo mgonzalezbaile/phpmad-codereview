@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Tests;
-
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
@@ -15,7 +15,7 @@ class DecoratorTest extends TestCase
 
         $useCase->execute();
 
-        $this->assertTrue(True);
+        $this->assertTrue(true);
     }
 }
 
@@ -26,7 +26,6 @@ interface UseCaseInterface
 
 class SomeUseCase implements UseCaseInterface
 {
-
     public function execute(): void
     {
         echo "CHECK SOMETHING\n";
@@ -49,9 +48,9 @@ class UseCaseTimerDecorator implements UseCaseInterface
 
     public function execute(): void
     {
-        echo "START TIME: " . time() . "\n";
+        echo 'START TIME: ' . time() . "\n";
         $this->decoratedUseCase->execute();
-        echo "END TIME: " . time() . "\n";
+        echo 'END TIME: ' . time() . "\n";
     }
 }
 
@@ -73,7 +72,6 @@ class UseCaseDbTransactionDecorator implements UseCaseInterface
             echo "INIT DB TRANSACTION\n";
             $this->decoratedUseCase->execute();
             echo "COMMIT DB TRANSACTION\n";
-
         } catch (Throwable $exception) {
             echo "ROLLBACK DB TRANSACTION\n";
         }

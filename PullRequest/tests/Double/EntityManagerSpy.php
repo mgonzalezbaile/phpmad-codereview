@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Double;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\Configuration;
@@ -36,7 +35,6 @@ class EntityManagerSpy implements EntityManagerInterface
 
     public function getClassMetadata($className)
     {
-
     }
 
     /**
@@ -80,8 +78,6 @@ class EntityManagerSpy implements EntityManagerInterface
 
     /**
      * Starts a transaction on the underlying database connection.
-     *
-     * @return void
      */
     public function beginTransaction()
     {
@@ -98,9 +94,9 @@ class EntityManagerSpy implements EntityManagerInterface
      * If an exception occurs during execution of the function or flushing or transaction commit,
      * the transaction is rolled back, the EntityManager closed and the exception re-thrown.
      *
-     * @param callable $func The function to execute transactionally.
+     * @param callable $func the function to execute transactionally
      *
-     * @return mixed The non-empty value returned from the closure or true instead.
+     * @return mixed the non-empty value returned from the closure or true instead
      */
     public function transactional($func)
     {
@@ -109,8 +105,6 @@ class EntityManagerSpy implements EntityManagerInterface
 
     /**
      * Commits a transaction on the underlying database connection.
-     *
-     * @return void
      */
     public function commit()
     {
@@ -119,8 +113,6 @@ class EntityManagerSpy implements EntityManagerInterface
 
     /**
      * Performs a rollback on the underlying database connection.
-     *
-     * @return void
      */
     public function rollback()
     {
@@ -130,7 +122,7 @@ class EntityManagerSpy implements EntityManagerInterface
     /**
      * Creates a new Query object.
      *
-     * @param string $dql The DQL string.
+     * @param string $dql the DQL string
      *
      * @return Query
      */
@@ -154,8 +146,8 @@ class EntityManagerSpy implements EntityManagerInterface
     /**
      * Creates a native SQL query.
      *
-     * @param string $sql
-     * @param ResultSetMapping $rsm The ResultSetMapping to use.
+     * @param string           $sql
+     * @param ResultSetMapping $rsm the ResultSetMapping to use
      *
      * @return NativeQuery
      */
@@ -177,7 +169,7 @@ class EntityManagerSpy implements EntityManagerInterface
     }
 
     /**
-     * Create a QueryBuilder instance
+     * Create a QueryBuilder instance.
      *
      * @return QueryBuilder
      */
@@ -190,12 +182,12 @@ class EntityManagerSpy implements EntityManagerInterface
      * Gets a reference to the entity identified by the given type and identifier
      * without actually loading it, if the entity is not yet loaded.
      *
-     * @param string $entityName The name of the entity type.
-     * @param mixed $id The entity identifier.
-     *
-     * @return object|null The entity reference.
+     * @param string $entityName the name of the entity type
+     * @param mixed  $id         the entity identifier
      *
      * @throws ORMException
+     *
+     * @return object|null the entity reference
      */
     public function getReference($entityName, $id)
     {
@@ -217,10 +209,10 @@ class EntityManagerSpy implements EntityManagerInterface
      * never be visible to the application (especially not event listeners) as it will
      * never be loaded in the first place.
      *
-     * @param string $entityName The name of the entity type.
-     * @param mixed $identifier The entity identifier.
+     * @param string $entityName the name of the entity type
+     * @param mixed  $identifier the entity identifier
      *
-     * @return object|null The (partial) entity reference.
+     * @return object|null the (partial) entity reference
      */
     public function getPartialReference($entityName, $identifier)
     {
@@ -231,8 +223,6 @@ class EntityManagerSpy implements EntityManagerInterface
      * Closes the EntityManager. All entities that are currently managed
      * by this EntityManager become detached. The EntityManager may no longer
      * be used after it is closed.
-     *
-     * @return void
      */
     public function close()
     {
@@ -242,12 +232,12 @@ class EntityManagerSpy implements EntityManagerInterface
     /**
      * Creates a copy of the given entity. Can create a shallow or a deep copy.
      *
-     * @param object $entity The entity to copy.
-     * @param boolean $deep FALSE for a shallow copy, TRUE for a deep copy.
-     *
-     * @return object The new entity.
+     * @param object $entity the entity to copy
+     * @param bool   $deep   FALSE for a shallow copy, TRUE for a deep copy
      *
      * @throws \BadMethodCallException
+     *
+     * @return object the new entity
      */
     public function copy($entity, $deep = false)
     {
@@ -257,11 +247,9 @@ class EntityManagerSpy implements EntityManagerInterface
     /**
      * Acquire a lock on the given entity.
      *
-     * @param object $entity
-     * @param int $lockMode
+     * @param object   $entity
+     * @param int      $lockMode
      * @param int|null $lockVersion
-     *
-     * @return void
      *
      * @throws OptimisticLockException
      * @throws PessimisticLockException
@@ -309,18 +297,20 @@ class EntityManagerSpy implements EntityManagerInterface
     public function getUnitOfWork()
     {
         // TODO: Implement getUnitOfWork() method.
-    }/**
- * Gets a hydrator for the given hydration mode.
- *
- * This method caches the hydrator instances which is used for all queries that don't
- * selectively iterate over the result.
- *
- * @param string|int $hydrationMode
- *
- * @return \Doctrine\ORM\Internal\Hydration\AbstractHydrator
- * @deprecated
- *
- */
+    }
+
+    /**
+     * Gets a hydrator for the given hydration mode.
+     *
+     * This method caches the hydrator instances which is used for all queries that don't
+     * selectively iterate over the result.
+     *
+     * @param string|int $hydrationMode
+     *
+     * @return \Doctrine\ORM\Internal\Hydration\AbstractHydrator
+     *
+     * @deprecated
+     */
     public function getHydrator($hydrationMode)
     {
         // TODO: Implement getHydrator() method.
@@ -331,9 +321,9 @@ class EntityManagerSpy implements EntityManagerInterface
      *
      * @param string|int $hydrationMode
      *
-     * @return \Doctrine\ORM\Internal\Hydration\AbstractHydrator
-     *
      * @throws ORMException
+     *
+     * @return \Doctrine\ORM\Internal\Hydration\AbstractHydrator
      */
     public function newHydrator($hydrationMode)
     {
@@ -353,7 +343,7 @@ class EntityManagerSpy implements EntityManagerInterface
     /**
      * Gets the enabled filters.
      *
-     * @return \Doctrine\ORM\Query\FilterCollection The active filter collection.
+     * @return \Doctrine\ORM\Query\FilterCollection the active filter collection
      */
     public function getFilters()
     {
@@ -363,7 +353,7 @@ class EntityManagerSpy implements EntityManagerInterface
     /**
      * Checks whether the state of the filter collection is clean.
      *
-     * @return boolean True, if the filter collection is clean.
+     * @return bool true, if the filter collection is clean
      */
     public function isFiltersStateClean()
     {
@@ -373,7 +363,7 @@ class EntityManagerSpy implements EntityManagerInterface
     /**
      * Checks whether the Entity Manager has filters.
      *
-     * @return boolean True, if the EM has a filter collection.
+     * @return bool true, if the EM has a filter collection
      */
     public function hasFilters()
     {
@@ -385,10 +375,10 @@ class EntityManagerSpy implements EntityManagerInterface
      *
      * This is just a convenient shortcut for getRepository($className)->find($id).
      *
-     * @param string $className The class name of the object to find.
-     * @param mixed $id The identity of the object to find.
+     * @param string $className the class name of the object to find
+     * @param mixed  $id        the identity of the object to find
      *
-     * @return object|null The found object.
+     * @return object|null the found object
      */
     public function find($className, $id)
     {
@@ -403,9 +393,7 @@ class EntityManagerSpy implements EntityManagerInterface
      * NOTE: The persist operation always considers objects that are not yet known to
      * this ObjectManager as NEW. Do not pass detached objects to the persist operation.
      *
-     * @param object $object The instance to make managed and persistent.
-     *
-     * @return void
+     * @param object $object the instance to make managed and persistent
      */
     public function persist($object)
     {
@@ -417,9 +405,7 @@ class EntityManagerSpy implements EntityManagerInterface
      *
      * A removed object will be removed from the database as a result of the flush operation.
      *
-     * @param object $object The object instance to remove.
-     *
-     * @return void
+     * @param object $object the object instance to remove
      */
     public function remove($object)
     {
@@ -444,9 +430,7 @@ class EntityManagerSpy implements EntityManagerInterface
      * Clears the ObjectManager. All objects that are currently managed
      * by this ObjectManager become detached.
      *
-     * @param string|null $objectName if given, only objects of this type will get detached.
-     *
-     * @return void
+     * @param string|null $objectName if given, only objects of this type will get detached
      */
     public function clear($objectName = null)
     {
@@ -460,9 +444,7 @@ class EntityManagerSpy implements EntityManagerInterface
      * Objects which previously referenced the detached object will continue to
      * reference it.
      *
-     * @param object $object The object to detach.
-     *
-     * @return void
+     * @param object $object the object to detach
      */
     public function detach($object)
     {
@@ -473,9 +455,7 @@ class EntityManagerSpy implements EntityManagerInterface
      * Refreshes the persistent state of an object from the database,
      * overriding any local changes that have not yet been persisted.
      *
-     * @param object $object The object to refresh.
-     *
-     * @return void
+     * @param object $object the object to refresh
      */
     public function refresh($object)
     {
@@ -486,8 +466,6 @@ class EntityManagerSpy implements EntityManagerInterface
      * Flushes all changes to objects that have been queued up to now to the database.
      * This effectively synchronizes the in-memory state of managed objects with the
      * database.
-     *
-     * @return void
      */
     public function flush()
     {
@@ -522,8 +500,6 @@ class EntityManagerSpy implements EntityManagerInterface
      * This method is a no-op for other objects.
      *
      * @param object $obj
-     *
-     * @return void
      */
     public function initializeObject($obj)
     {

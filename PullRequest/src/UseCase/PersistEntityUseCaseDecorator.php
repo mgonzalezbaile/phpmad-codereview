@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 
-class PersistEntityUseCaseDecorator implements IExecuteCommand
+class PersistEntityUseCaseDecorator implements CommandHandler
 {
     /**
-     * @var IExecuteCommand
+     * @var CommandHandler
      */
     private $useCase;
 
@@ -18,17 +19,17 @@ class PersistEntityUseCaseDecorator implements IExecuteCommand
      */
     private $entityManager;
 
-    public function __construct(IExecuteCommand $useCase, EntityManagerInterface $entityManager)
+    public function __construct(CommandHandler $useCase, EntityManagerInterface $entityManager)
     {
-        $this->useCase = $useCase;
+        $this->useCase       = $useCase;
         $this->entityManager = $entityManager;
     }
 
-    public function execute(Command $command)
+    public function handle(Command $command): DomainEventList
     {
         try {
             $this->entityManager->beginTransaction();
-            $entity = $this->useCase->execute($command);
+            $entity = $this->useCase->handle($command);
 
             $this->entityManager->persist($entity);
             $this->entityManager->flush();

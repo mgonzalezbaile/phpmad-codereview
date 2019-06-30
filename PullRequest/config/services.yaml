@@ -16,9 +16,10 @@ services:
     App\:
         resource: '../src/*'
         exclude:
-            - '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+            - '../src/{DependencyInjection,Entity,Migrations,Tests,Event,Kernel.php}'
             - '../src/UseCase/{*Command.php}'
             - '../src/UseCase/{*Decorator.php}'
+            - '../src/Middleware/{*CommandResponse.php}'
         public: true
 
     # controllers are imported separately to make sure services can be injected
@@ -26,10 +27,4 @@ services:
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    App\EventSubscriber\PullRequestSubscriber:
-        tags:
-            - { name: doctrine.event_subscriber, connection: default }
 

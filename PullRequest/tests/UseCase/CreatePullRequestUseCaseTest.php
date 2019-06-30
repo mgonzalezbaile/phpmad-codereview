@@ -1,47 +1,52 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Tests\UseCase;
 
-
+use App\Entity\PullRequestProjection;
+use App\Repository\PullRequestProjectionPersistence;
 use App\UseCase\CreatePullRequestCommand;
+use App\Event\PullRequestCreated;
 use App\UseCase\CreatePullRequestUseCase;
-use PHPUnit\Framework\TestCase;
 
-class CreatePullRequestUseCaseTest extends TestCase
+class CreatePullRequestUseCaseTest extends UseCaseScenario
 {
     public function testShouldCreatePullRequest()
     {
-        $code              = 'some code';
-        $writer            = 'some writer';
-        $revisionDueDate   = '2019-01-01';
-        $assignedReviewers = [1, 2, 3];
-        $pullRequest       = (new CreatePullRequestUseCase())->execute(new CreatePullRequestCommand(
-            $code,
-            $writer,
-            $revisionDueDate,
-            $assignedReviewers
-        ));
+        $this
+            ->setUpScenario()
+            ->withUseCase(CreatePullRequestUseCase::class)
+            ->withProjectionPersistence(PullRequestProjectionPersistence::class);
 
-        $this->assertEquals($code, $pullRequest->getCode());
-        $this->assertEquals($writer, $pullRequest->getWriter());
-        $this->assertEquals($assignedReviewers, $pullRequest->getAssignedReviewers());
-    }
+        $code               = 'some code';
+        $writer             = 'some writer';
+        $revisionDueDateStr = '2019-01-01';
+        $assignedReviewers  = ['some reviewer'];
+        $revisionDueDate    = \DateTimeImmutable::createFromFormat('Y-m-d', $revisionDueDateStr);
+        $expectedId         = 'some id';
 
-    public function testShouldFailWhenCodeEmpty()
-    {
-        $this->expectException(\DomainException::class);
-
-        $code              = '';
-        $writer            = 'some writer';
-        $revisionDueDate   = '2019-01-01';
-        $assignedReviewers = [1, 2, 3];
-
-        (new CreatePullRequestUseCase())->execute(new CreatePullRequestCommand(
-            $code,
-            $writer,
-            $revisionDueDate,
-            $assignedReviewers
-        ));
+        $this
+            ->when(
+                new CreatePullRequestCommand($expectedId, $code, $writer, $revisionDueDateStr, $assignedReviewers)
+            )
+            ->then(
+                new PullRequestCreated(
+                    $expectedId,
+                    $code,
+                    $writer,
+                    $revisionDueDate,
+                    $assignedReviewers
+                )
+            )
+            ->andProjections(
+                (new PullRequestProjection())
+                    ->withCode($code)
+                    ->withWriter($writer)
+                    ->withRevisionDueDate($revisionDueDate)
+                    ->withId($expectedId)
+                    ->withIsMerged(false)
+                    ->withAssignedReviewers($assignedReviewers)
+            );
     }
 }

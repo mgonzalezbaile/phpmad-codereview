@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
-class CalculateQuoteUseCase implements IExecuteCommand
+class CalculateQuoteUseCase implements CommandHandler
 {
     /**
      * @param CalculateQuoteCommand $command
      */
-    public function execute(Command $command): int
+    public function handle(Command $command): DomainEventList
     {
         $quote     = 0;
         $codeLines = substr_count($command->code(), "\n");
@@ -42,6 +43,7 @@ class CalculateQuoteUseCase implements IExecuteCommand
             $quote += 10000;
         }
 
-        return $quote;
+//        return $quote;
+        return DomainEventList::fromDomainEvents();
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
-
 
 class CalculateQuoteCommand implements Command
 {
@@ -26,8 +26,8 @@ class CalculateQuoteCommand implements Command
         string $revisionDueDate,
         array $assignedReviewers
     ) {
-        $this->code = $code;
-        $this->revisionDueDate = $revisionDueDate;
+        $this->code              = $code;
+        $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
     }
 
