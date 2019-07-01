@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\UseCase;
 
-use App\Entity\PullRequestProjection;
-use App\Repository\PullRequestProjectionPersistence;
+use App\Entity\PullRequest;
+use App\Repository\PullRequestRepository;
 use App\UseCase\CreatePullRequestCommand;
 use App\Event\PullRequestCreated;
 use App\UseCase\CreatePullRequestUseCase;
@@ -17,7 +17,7 @@ class CreatePullRequestUseCaseTest extends UseCaseScenario
         $this
             ->setUpScenario()
             ->withUseCase(CreatePullRequestUseCase::class)
-            ->withProjectionPersistence(PullRequestProjectionPersistence::class);
+            ->withRepository(PullRequestRepository::class);
 
         $code               = 'some code';
         $writer             = 'some writer';
@@ -40,7 +40,7 @@ class CreatePullRequestUseCaseTest extends UseCaseScenario
                 )
             )
             ->andProjections(
-                (new PullRequestProjection())
+                (new PullRequest())
                     ->withCode($code)
                     ->withWriter($writer)
                     ->withRevisionDueDate($revisionDueDate)

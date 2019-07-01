@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\PullRequestProjection;
+use App\Entity\PullRequest;
 use App\Middleware\CommonCommandHandlerBus;
 use App\Repository\PullRequestProjectionPersistence;
 use App\UseCase\ProcessPullRequestCreation;
@@ -41,10 +41,10 @@ class PullRequestController extends AbstractController
         $revisionDueDate   = $request->get('revisionDueDate');
 
         try {
-            /** @var PullRequestProjection $pullRequest */
+            /** @var PullRequest $pullRequest */
             $pullRequest = $this->commandBus
                 ->withUseCase(ProcessPullRequestCreation::class)
-                ->withProjectionPersistence(PullRequestProjectionPersistence::class)
+                ->withRepository(PullRequestProjectionPersistence::class)
                 ->handle(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
         } catch (\DomainException $exception) {
             return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
@@ -56,7 +56,7 @@ class PullRequestController extends AbstractController
     /**
      * @Route("/{id}", name="pull_request_edit", methods={"PUT"})
      */
-    public function edit(Request $request, PullRequestProjection $pullRequest): JsonResponse
+    public function edit(Request $request, PullRequest $pullRequest): JsonResponse
     {
         $code = $request->get('code');
         if (empty($code)) {

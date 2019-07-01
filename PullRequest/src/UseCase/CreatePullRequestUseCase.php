@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\UseCase;
 
-use App\Entity\PullRequestProjection;
+use App\Entity\PullRequest;
 use App\Event\CreatePullRequestFailed;
 use App\Event\PullRequestCreated;
 use DateTimeImmutable;
@@ -34,9 +34,9 @@ class CreatePullRequestUseCase implements CommandHandler
         ));
     }
 
-    public function projectPullRequestCreated(PullRequestCreated $event, ?PullRequestProjection $projection): ProjectionList
+    public function projectPullRequestCreated(PullRequestCreated $event, ?PullRequest $projection): AggregateRootList
     {
-        $projection = (new PullRequestProjection())
+        $projection = (new PullRequest())
             ->withId($event->streamId())
             ->withCode($event->code())
             ->withWriter($event->writer())
@@ -44,6 +44,6 @@ class CreatePullRequestUseCase implements CommandHandler
             ->withIsMerged(false)
             ->withAssignedReviewers($event->assignedReviewers());
 
-        return ProjectionList::fromProjections($projection);
+        return AggregateRootList::fromAggregateRoots($projection);
     }
 }

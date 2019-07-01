@@ -7,7 +7,7 @@ namespace App\Middleware;
 use App\UseCase\Command;
 use App\UseCase\CommandHandler;
 use App\UseCase\DomainEvent;
-use App\UseCase\ProjectionList;
+use App\UseCase\AggregateRootList;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
@@ -33,28 +33,21 @@ class CommonCommandHandlerBus
     /**
      * @var ServiceEntityRepository
      */
-    private $projectionPersistence;
+    private $repository;
 
     /**
      * @var LoggerInterface
      */
     private $logger;
 
-//    /**
-//     * @var EventStore
-//     */
-//    private $eventStore;
-
     public function __construct(
         ContainerInterface $container,
         EntityManagerInterface $entityManager,
         LoggerInterface $logger
-//        EventStore $eventStore
     ) {
         $this->container     = $container;
         $this->entityManager = $entityManager;
         $this->logger        = $logger;
-//        $this->eventStore = $eventStore;
     }
 
     public function withUseCase(string $useCase): self
@@ -64,9 +57,9 @@ class CommonCommandHandlerBus
         return $this;
     }
 
-    public function withProjectionPersistence(string $projectionPersistence): self
+    public function withRepository(string $repository): self
     {
-        $this->projectionPersistence = $this->container->get($projectionPersistence);
+        $this->repository = $this->container->get($repository);
 
         return $this;
     }
@@ -76,27 +69,26 @@ class CommonCommandHandlerBus
         try {
             $this->entityManager->beginTransaction();
             $domainEvents = $this->useCase->handle($command);
-            $projections  = ProjectionList::empty();
+            $aggregateRootList  = AggregateRootList::empty();
 
             foreach ($domainEvents as $domainEvent) {
-                $callMethod = $this->callMethod($domainEvent);
+                $projectMethod = $this->projectMethodOf($domainEvent);
 
-                $newProjections = $this->useCase->$callMethod($domainEvent, $this->projectionPersistence->find($domainEvent->streamId()));
-                $projections    = $projections->appendProjectionList($newProjections);
+                if (method_exists($this->useCase, $projectMethod) && $this->repository){
+                    $newAggregateRoots = $this->useCase->$projectMethod($domainEvent, $this->repository->find($domainEvent->streamId()));
+                    $aggregateRootList    = $aggregateRootList->appendAggregateRootList($newAggregateRoots);
+
+                }
             }
 
-//            foreach ($domainEvents as $domainEvent) {
-//                $this->eventStore->append($domainEvent);
-//            }
-
-            foreach ($projections as $projection) {
-                $this->entityManager->merge($projection);
+            foreach ($aggregateRootList as $aggregateRoot) {
+                $this->entityManager->merge($aggregateRoot);
                 $this->entityManager->flush();
             }
 
             $this->entityManager->commit();
 
-            return new CommandResponse($domainEvents, $projections);
+            return new CommandResponse($domainEvents, $aggregateRootList);
         } catch (\Throwable $exception) {
             $this->entityManager->rollback();
 
@@ -104,7 +96,7 @@ class CommonCommandHandlerBus
         }
     }
 
-    private function callMethod(DomainEvent $domainEvent)
+    private function projectMethodOf(DomainEvent $domainEvent)
     {
         $fqcnParts = explode('\\', get_class($domainEvent));
 

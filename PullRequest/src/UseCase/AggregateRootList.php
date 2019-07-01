@@ -7,10 +7,10 @@ namespace App\UseCase;
 use ArrayIterator;
 use IteratorAggregate;
 
-class ProjectionList implements IteratorAggregate
+class AggregateRootList implements IteratorAggregate
 {
     /**
-     * @var Projection
+     * @var AggregateRoot
      */
     private $projections;
 
@@ -24,7 +24,7 @@ class ProjectionList implements IteratorAggregate
         return new self([]);
     }
 
-    public static function fromProjections(Projection ...$projections): self
+    public static function fromAggregateRoots(AggregateRoot ...$projections): self
     {
         return new self($projections);
     }
@@ -39,7 +39,7 @@ class ProjectionList implements IteratorAggregate
         return $this->projections;
     }
 
-    public function appendProjectionList(self $projectionList): self
+    public function appendAggregateRootList(self $projectionList): self
     {
         return new self(array_merge($this->projections, $projectionList->asArray()));
     }

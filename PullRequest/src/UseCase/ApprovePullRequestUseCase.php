@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\UseCase;
 
-use App\Entity\PullRequestProjection;
+use App\Entity\PullRequest;
 use App\Event\ApprovePullRequestFailed;
 use App\Event\PullRequestApproved;
 use App\Repository\PullRequestRepository;
@@ -28,22 +28,17 @@ class ApprovePullRequestUseCase implements CommandHandler
     {
         $pullRequest = $this->repository->ofId($command->pullRequestId());
 
-        if (!PullRequest::approverCanApprove($pullRequest, $command->approver())) {
+        if (!in_array($command->approver(), $pullRequest->assignedReviewers())) {
             return DomainEventList::fromDomainEvents(ApprovePullRequestFailed::dueTo($command->pullRequestId(), ApprovePullRequestFailed::APPROVER_CANNOT_APPROVE_REASON));
         }
 
         return DomainEventList::fromDomainEvents(new PullRequestApproved($command->pullRequestId(), $command->approver()));
     }
 
-    public function projectPullRequestApproved(PullRequestApproved $event, PullRequestProjection $projection): ProjectionList
+    public function projectPullRequestApproved(PullRequestApproved $event, PullRequest $projection): AggregateRootList
     {
         $projection = $projection->withApprovers(array_merge($projection->approvers(), [$event->approver()]));
 
-        return ProjectionList::fromProjections($projection);
-    }
-
-    public function projectApprovePullRequestFailed(ApprovePullRequestFailed $event, PullRequestProjection $projection): ProjectionList
-    {
-        return ProjectionList::fromProjections($projection);
+        return AggregateRootList::fromAggregateRoots($projection);
     }
 }

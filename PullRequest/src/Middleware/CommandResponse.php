@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\UseCase\DomainEventList;
-use App\UseCase\ProjectionList;
+use App\UseCase\AggregateRootList;
 
 class CommandResponse
 {
@@ -15,11 +15,11 @@ class CommandResponse
     private $domainEventList;
 
     /**
-     * @var ProjectionList
+     * @var AggregateRootList
      */
     private $projectionList;
 
-    public function __construct(DomainEventList $domainEventList, ProjectionList $projectionList)
+    public function __construct(DomainEventList $domainEventList, AggregateRootList $projectionList)
     {
         $this->domainEventList = $domainEventList;
         $this->projectionList  = $projectionList;
@@ -30,7 +30,7 @@ class CommandResponse
         return $this->domainEventList;
     }
 
-    public function projectionList(): ProjectionList
+    public function projectionList(): AggregateRootList
     {
         return $this->projectionList;
     }

@@ -8,7 +8,7 @@ use App\Middleware\CommandResponse;
 use App\Middleware\CommonCommandHandlerBus;
 use App\UseCase\Command;
 use App\UseCase\DomainEvent;
-use App\UseCase\Projection;
+use App\UseCase\AggregateRoot;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -63,14 +63,14 @@ class UseCaseScenario extends KernelTestCase
         return $this;
     }
 
-    public function withProjectionPersistence(string $projector): self
+    public function withRepository(string $projector): self
     {
-        $this->commandBus->withProjectionPersistence($projector);
+        $this->commandBus->withRepository($projector);
 
         return $this;
     }
 
-    public function given(Projection $projection): self
+    public function given(AggregateRoot $projection): self
     {
         $this->entityManager->persist($projection);
         $this->entityManager->flush();
@@ -92,7 +92,7 @@ class UseCaseScenario extends KernelTestCase
         return $this;
     }
 
-    public function andProjections(Projection ...$expectedProjections): self
+    public function andProjections(AggregateRoot ...$expectedProjections): self
     {
         PHPUnitAssert::assertEquals($expectedProjections, $this->commandResponse->projectionList()->asArray());
 

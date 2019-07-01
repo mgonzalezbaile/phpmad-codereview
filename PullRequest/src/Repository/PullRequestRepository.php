@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\Entity\PullRequestProjection;
-use App\UseCase\PullRequest;
+use App\Entity\PullRequest;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -19,7 +18,7 @@ class PullRequestRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, PullRequestProjection::class);
+        parent::__construct($registry, PullRequest::class);
     }
 
     public function ofId($id): ?PullRequest

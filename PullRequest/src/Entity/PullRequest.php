@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\UseCase\Projection;
-use App\UseCase\PullRequest;
+use App\UseCase\AggregateRoot;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PullRequestRepository")
  * @ORM\Table(name="pull_request")
  */
-class PullRequestProjection extends PullRequest implements Projection
+class PullRequest implements AggregateRoot
 {
     /**
      * @ORM\Id()
      * @ORM\Column(type="string")
      */
-    protected $id;
+    private $id;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -33,7 +32,7 @@ class PullRequestProjection extends PullRequest implements Projection
     /**
      * @ORM\Column(type="array", nullable=true)
      */
-    protected $assignedReviewers;
+    private $assignedReviewers;
 
     /**
      * @ORM\Column(type="array", nullable=true)
@@ -65,49 +64,9 @@ class PullRequestProjection extends PullRequest implements Projection
      */
     private $quote;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getCode(): ?string
-    {
-        return $this->code;
-    }
-
-    public function getWriter(): ?string
-    {
-        return $this->writer;
-    }
-
-    public function getAssignedReviewers(): ?array
+    public function assignedReviewers()
     {
         return $this->assignedReviewers;
-    }
-
-    public function getIsMerged(): ?bool
-    {
-        return $this->isMerged;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function getQuote()
-    {
-        return $this->quote;
-    }
-
-    public function getRevisionDueDate(): \DateTime
-    {
-        return $this->revisionDueDate;
     }
 
     public function approvers()
