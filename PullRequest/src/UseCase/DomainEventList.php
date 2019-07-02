@@ -33,9 +33,4 @@ class DomainEventList implements IteratorAggregate
     {
         return $this->domainEvents;
     }
-
-    public static function fromDomainEventsArray(array $domainEvents): self
-    {
-        return new self($domainEvents);
-    }
 }

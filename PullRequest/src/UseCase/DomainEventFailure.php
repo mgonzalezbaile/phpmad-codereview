@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\UseCase;
 
-interface DomainEventFailure
+interface DomainEventFailure extends DomainEvent
 {
     public function reason(): string;
 }

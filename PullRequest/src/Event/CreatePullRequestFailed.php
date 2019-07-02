@@ -7,7 +7,7 @@ namespace App\Event;
 use App\UseCase\DomainEvent;
 use App\UseCase\DomainEventFailure;
 
-class CreatePullRequestFailed implements DomainEvent, DomainEventFailure
+class CreatePullRequestFailed implements DomainEventFailure
 {
     /**
      * @var string

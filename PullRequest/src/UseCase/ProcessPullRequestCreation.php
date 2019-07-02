@@ -37,7 +37,7 @@ class ProcessPullRequestCreation implements CommandHandler
             );
         }
 
-        return DomainEventList::fromDomainEventsArray(array_merge(
+        return DomainEventList::fromDomainEvents(...array_merge(
             $domainEventsListCalculateQuote->asArray(),
             $domainEventsListPullRequest->asArray(),
             $domainEventsNotifyPullRequestCreation
