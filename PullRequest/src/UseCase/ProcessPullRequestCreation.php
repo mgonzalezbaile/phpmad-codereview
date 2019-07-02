@@ -19,18 +19,19 @@ class ProcessPullRequestCreation implements CommandHandler
 
     /**
      * @param ProcessPullRequestCreationCommand $command
+     *
      * @return DomainEventList
      */
     public function handle(Command $command): DomainEventList
     {
         $domainEventsListCalculateQuote    = (new CalculateQuoteUseCase())->handle(new CalculateQuoteCommand($command->id(), $command->code(), $command->revisionDueDate(), $command->assignedReviewers()));
-        $quote = $domainEventsListCalculateQuote->getIterator()->current()->quote();
-        $domainEventsListPullRequest = (new CreatePullRequestUseCase())->handle(new CreatePullRequestCommand($command->id(), $command->code(), $command->writer(), $quote, $command->revisionDueDate(), $command->assignedReviewers()));
+        $quote                             = $domainEventsListCalculateQuote->getIterator()->current()->quote();
+        $domainEventsListPullRequest       = (new CreatePullRequestUseCase())->handle(new CreatePullRequestCommand($command->id(), $command->code(), $command->writer(), $quote, $command->revisionDueDate(), $command->assignedReviewers()));
 
         $domainEventsNotifyPullRequestCreation = [];
         foreach ($command->assignedReviewers() as $assignedReviewer) {
-            $domainEventsNotifyPullRequestCreationAssignedReviewer = (new NotifyPullRequestCreationToReviewerUseCase($this->mailerService))->handle(new NotifyPullRequestCreationToReviewerCommand($command->id(),$assignedReviewer));
-            $domainEventsNotifyPullRequestCreation = array_merge(
+            $domainEventsNotifyPullRequestCreationAssignedReviewer = (new NotifyPullRequestCreationToReviewerUseCase($this->mailerService))->handle(new NotifyPullRequestCreationToReviewerCommand($command->id(), $assignedReviewer));
+            $domainEventsNotifyPullRequestCreation                 = array_merge(
                 $domainEventsNotifyPullRequestCreation,
                 $domainEventsNotifyPullRequestCreationAssignedReviewer->asArray()
             );

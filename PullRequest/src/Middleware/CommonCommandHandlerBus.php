@@ -68,16 +68,15 @@ class CommonCommandHandlerBus
     {
         try {
             $this->entityManager->beginTransaction();
-            $domainEvents = $this->useCase->handle($command);
+            $domainEvents       = $this->useCase->handle($command);
             $aggregateRootList  = AggregateRootList::empty();
 
             foreach ($domainEvents as $domainEvent) {
                 $projectMethod = $this->projectMethodOf($domainEvent);
 
-                if (method_exists($this->useCase, $projectMethod) && $this->repository){
-                    $newAggregateRoots = $this->useCase->$projectMethod($domainEvent, $this->repository->find($domainEvent->streamId()));
+                if (method_exists($this->useCase, $projectMethod) && $this->repository) {
+                    $newAggregateRoots    = $this->useCase->$projectMethod($domainEvent, $this->repository->find($domainEvent->streamId()));
                     $aggregateRootList    = $aggregateRootList->appendAggregateRootList($newAggregateRoots);
-
                 }
             }
 

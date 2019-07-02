@@ -49,7 +49,7 @@ class PullRequestCreated implements DomainEvent
     ) {
         $this->code              = $code;
         $this->writer            = $writer;
-        $this->quote = $quote;
+        $this->quote             = $quote;
         $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
         $this->id                = $id;

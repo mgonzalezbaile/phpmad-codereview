@@ -49,7 +49,7 @@ class CreatePullRequestCommand implements Command
         $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
         $this->id                = $id;
-        $this->quote = $quote;
+        $this->quote             = $quote;
     }
 
     public function code(): string

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\PullRequest;
 use App\Middleware\CommonCommandHandlerBus;
 use App\Repository\PullRequestRepository;
 use App\UseCase\ApprovePullRequestCommand;

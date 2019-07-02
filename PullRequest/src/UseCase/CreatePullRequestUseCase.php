@@ -13,6 +13,7 @@ class CreatePullRequestUseCase implements CommandHandler
 {
     /**
      * @param CreatePullRequestCommand $command
+     *
      * @return DomainEventList
      */
     public function handle(Command $command): DomainEventList

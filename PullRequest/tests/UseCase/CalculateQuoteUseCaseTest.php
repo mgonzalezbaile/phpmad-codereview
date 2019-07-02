@@ -17,7 +17,6 @@ class CalculateQuoteUseCaseTest extends UseCaseScenario
      */
     public function testShouldCalculateQuote($id, $code, $assignedReviewers, $revisionDueDate, $expectedQuote)
     {
-
         $this
             ->setUpScenario()
             ->withUseCase(CalculateQuoteUseCase::class)

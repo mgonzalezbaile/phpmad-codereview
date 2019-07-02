@@ -35,7 +35,7 @@ class CalculateQuoteCommand implements Command
         $this->code              = $code;
         $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
-        $this->id = $id;
+        $this->id                = $id;
     }
 
     public function id(): string

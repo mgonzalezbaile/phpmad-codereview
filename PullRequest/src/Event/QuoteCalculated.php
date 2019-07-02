@@ -22,7 +22,7 @@ class QuoteCalculated implements DomainEvent
         string $id,
         int $quote
     ) {
-        $this->id              = $id;
+        $this->id                 = $id;
         $this->quote              = $quote;
     }
 

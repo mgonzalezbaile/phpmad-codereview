@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Event;
 
 use App\UseCase\DomainEvent;
@@ -19,7 +21,7 @@ class NotifyPullRequestCreationToReviewerSended implements DomainEvent
     public function __construct(string $id, string $reviewer)
     {
         $this->reviewer = $reviewer;
-        $this->id = $id;
+        $this->id       = $id;
     }
 
     public function streamId(): string

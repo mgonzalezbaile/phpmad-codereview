@@ -16,14 +16,14 @@ class ProcessPullRequestCreationTest extends UseCaseScenario
 {
     public function testShouldManagePullRequestCreationProcess()
     {
-        $id                = 'some id';
-        $writer            = 'writer';
-        $code              = 'code';
-        $assignedReviewers = ['reviewer1'];
-        $revisionDueDate   = '2019-01-01';
+        $id                      = 'some id';
+        $writer                  = 'writer';
+        $code                    = 'code';
+        $assignedReviewers       = ['reviewer1'];
+        $revisionDueDate         = '2019-01-01';
         $revisionDueDateObject   = \DateTimeImmutable::createFromFormat('Y-m-d', $revisionDueDate);
-        $quote             = 11000;
-        $aPullRequest = (new PullRequest())->withId($id);
+        $quote                   = 11000;
+        $aPullRequest            = (new PullRequest())->withId($id);
 
         $this
             ->setUpScenario()
@@ -52,6 +52,5 @@ class ProcessPullRequestCreationTest extends UseCaseScenario
                     ->withIsMerged(false)
                     ->withAssignedReviewers($assignedReviewers)
             );
-        ;
     }
 }

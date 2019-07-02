@@ -10,6 +10,7 @@ class CalculateQuoteUseCase implements CommandHandler
 {
     /**
      * @param CalculateQuoteCommand $command
+     *
      * @return DomainEventList
      */
     public function handle(Command $command): DomainEventList

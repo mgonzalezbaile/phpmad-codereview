@@ -33,7 +33,7 @@ class ProcessPullRequestCreationCommand implements Command
 
     public function __construct(string $id, string $writer, string $code, array $assignedReviewers, string $revisionDueDate)
     {
-        $this->id = $id;
+        $this->id                = $id;
         $this->code              = $code;
         $this->assignedReviewers = $assignedReviewers;
         $this->revisionDueDate   = $revisionDueDate;

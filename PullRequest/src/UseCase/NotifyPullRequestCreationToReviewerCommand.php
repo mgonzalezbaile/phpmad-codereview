@@ -19,7 +19,7 @@ class NotifyPullRequestCreationToReviewerCommand implements Command
     public function __construct(string $id, string $reviewer)
     {
         $this->reviewer = $reviewer;
-        $this->id = $id;
+        $this->id       = $id;
     }
 
     public function id(): string

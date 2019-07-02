@@ -21,6 +21,7 @@ class NotifyPullRequestCreationToReviewerUseCase implements CommandHandler
 
     /**
      * @param NotifyPullRequestCreationToReviewerCommand $command
+     *
      * @return DomainEventList
      */
     public function handle(Command $command): DomainEventList

@@ -23,6 +23,7 @@ class ApprovePullRequestUseCase implements CommandHandler
 
     /**
      * @param ApprovePullRequestCommand $command
+     *
      * @return DomainEventList
      */
     public function handle(Command $command): DomainEventList

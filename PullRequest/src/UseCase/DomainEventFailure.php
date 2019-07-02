@@ -1,7 +1,8 @@
 <?php
 
-namespace App\UseCase;
+declare(strict_types=1);
 
+namespace App\UseCase;
 
 interface DomainEventFailure
 {
