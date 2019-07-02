@@ -35,11 +35,6 @@ class PullRequest implements AggregateRoot
     private $assignedReviewers;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $approvers = [];
-
-    /**
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $isMerged;
@@ -67,11 +62,6 @@ class PullRequest implements AggregateRoot
     public function assignedReviewers()
     {
         return $this->assignedReviewers;
-    }
-
-    public function approvers()
-    {
-        return $this->approvers;
     }
 
     public function withId($id): self
@@ -102,14 +92,6 @@ class PullRequest implements AggregateRoot
     {
         $clone                    = clone $this;
         $clone->assignedReviewers = $assignedReviewers;
-
-        return $clone;
-    }
-
-    public function withApprovers($approvers): self
-    {
-        $clone            = clone $this;
-        $clone->approvers = $approvers;
 
         return $clone;
     }

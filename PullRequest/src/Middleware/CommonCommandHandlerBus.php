@@ -8,6 +8,7 @@ use App\UseCase\Command;
 use App\UseCase\CommandHandler;
 use App\UseCase\DomainEvent;
 use App\UseCase\AggregateRootList;
+use App\UseCase\DomainEventList;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
@@ -68,22 +69,12 @@ class CommonCommandHandlerBus
     {
         try {
             $this->entityManager->beginTransaction();
-            $domainEvents       = $this->useCase->handle($command);
-            $aggregateRootList  = AggregateRootList::empty();
 
-            foreach ($domainEvents as $domainEvent) {
-                $projectMethod = $this->projectMethodOf($domainEvent);
+            $domainEvents = $this->useCase->handle($command);
 
-                if (method_exists($this->useCase, $projectMethod) && $this->repository) {
-                    $newAggregateRoots    = $this->useCase->$projectMethod($domainEvent, $this->repository->find($domainEvent->streamId()));
-                    $aggregateRootList    = $aggregateRootList->appendAggregateRootList($newAggregateRoots);
-                }
-            }
+            $aggregateRootList = $this->projectEvents($domainEvents);
 
-            foreach ($aggregateRootList as $aggregateRoot) {
-                $this->entityManager->merge($aggregateRoot);
-                $this->entityManager->flush();
-            }
+            $this->persist($aggregateRootList);
 
             $this->entityManager->commit();
 
@@ -95,10 +86,33 @@ class CommonCommandHandlerBus
         }
     }
 
-    private function projectMethodOf(DomainEvent $domainEvent)
+    private function projectMethodOf(DomainEvent $domainEvent): string
     {
         $fqcnParts = explode('\\', get_class($domainEvent));
 
         return 'project' . end($fqcnParts);
+    }
+
+    private function projectEvents(DomainEventList $domainEvents): AggregateRootList
+    {
+        $aggregateRootList = AggregateRootList::empty();
+        foreach ($domainEvents as $domainEvent) {
+            $projectMethod = $this->projectMethodOf($domainEvent);
+
+            if (method_exists($this->useCase, $projectMethod) && $this->repository) {
+                $newAggregateRoots = $this->useCase->$projectMethod($domainEvent, $this->repository->find($domainEvent->streamId()));
+                $aggregateRootList = $aggregateRootList->appendAggregateRootList($newAggregateRoots);
+            }
+        }
+
+        return $aggregateRootList;
+    }
+
+    private function persist(AggregateRootList $aggregateRootList): void
+    {
+        foreach ($aggregateRootList as $aggregateRoot) {
+            $this->entityManager->merge($aggregateRoot);
+            $this->entityManager->flush();
+        }
     }
 }
