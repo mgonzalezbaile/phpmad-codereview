@@ -15,7 +15,7 @@ class NotifyPullRequestCreationToReviewerUseCaseTest extends TestCase
     {
         $mailerSpy = new MailerServiceSpy();
 
-        (new NotifyPullRequestCreationToReviewerUseCase($mailerSpy))->handle(new NotifyPullRequestCreationToReviewerCommand('some reviewer'));
+        (new NotifyPullRequestCreationToReviewerUseCase($mailerSpy))->handle(new NotifyPullRequestCreationToReviewerCommand('some id', 'some reviewer'));
 
         $this->assertEquals(true, $mailerSpy->isSentMethodCalled());
     }

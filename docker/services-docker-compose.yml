@@ -1,22 +1,17 @@
-version: '3'
+version: '3.5'
 services:
   phpmad_pull_request_server:
     image: mgonzalezbaile/php_base:1.0
     container_name: phpmad_pull_request_server
     volumes:
-      - ..:/srv/app
-    working_dir: /srv/app/PullRequest
+      - ..:/opt/project
+    working_dir: /opt/project/PullRequest
     ports:
       - "8080:8080"
     command: '/srv/app/PullRequest/bin/console server:run 0.0.0.0:8080'
+    networks:
+      - phpmad-codereview-network
 
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: "codereview"
-      MYSQL_DATABASE: "codereview"
-      MYSQL_USER: "codereview"
-      MYSQL_PASSWORD: "codereview"
+networks:
+  phpmad-codereview-network:
+    external: true

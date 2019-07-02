@@ -31,10 +31,16 @@ class CreatePullRequestCommand implements Command
      */
     private $id;
 
+    /**
+     * @var int
+     */
+    private $quote;
+
     public function __construct(
         string $id,
         string $code,
         string $writer,
+        int $quote,
         string $revisionDueDate,
         array $assignedReviewers
     ) {
@@ -43,6 +49,7 @@ class CreatePullRequestCommand implements Command
         $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
         $this->id                = $id;
+        $this->quote = $quote;
     }
 
     public function code(): string
@@ -68,5 +75,10 @@ class CreatePullRequestCommand implements Command
     public function id(): string
     {
         return $this->id;
+    }
+
+    public function quote(): int
+    {
+        return $this->quote;
     }
 }

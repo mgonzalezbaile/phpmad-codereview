@@ -9,6 +9,11 @@ class CalculateQuoteCommand implements Command
     /**
      * @var string
      */
+    private $id;
+
+    /**
+     * @var string
+     */
     private $code;
 
     /**
@@ -22,6 +27,7 @@ class CalculateQuoteCommand implements Command
     private $assignedReviewers;
 
     public function __construct(
+        string $id,
         string $code,
         string $revisionDueDate,
         array $assignedReviewers
@@ -29,6 +35,12 @@ class CalculateQuoteCommand implements Command
         $this->code              = $code;
         $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
+        $this->id = $id;
+    }
+
+    public function id(): string
+    {
+        return $this->id;
     }
 
     public function code(): string

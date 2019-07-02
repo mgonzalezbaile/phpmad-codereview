@@ -4,43 +4,51 @@ declare(strict_types=1);
 
 namespace App\Tests\UseCase;
 
+use App\Entity\PullRequest;
+use App\Event\QuoteCalculated;
+use App\Repository\PullRequestRepository;
 use App\UseCase\CalculateQuoteCommand;
 use App\UseCase\CalculateQuoteUseCase;
-use PHPUnit\Framework\TestCase;
 
-class CalculateQuoteUseCaseTest extends TestCase
+class CalculateQuoteUseCaseTest extends UseCaseScenario
 {
     /**
      * @dataProvider provider
      */
-    public function testShouldCalculateQuote($code, $assignedReviewers, $revisionDueDate, $expectedQuote)
+    public function testShouldCalculateQuote($id, $code, $assignedReviewers, $revisionDueDate, $expectedQuote)
     {
-        $useCase = new CalculateQuoteUseCase();
 
-        $quote = $useCase->handle(
-            new CalculateQuoteCommand(
-                $code,
-                $revisionDueDate,
-                $assignedReviewers
+        $this
+            ->setUpScenario()
+            ->withUseCase(CalculateQuoteUseCase::class)
+            ->withRepository(PullRequestRepository::class);
+
+        $aPullRequest = (new PullRequest())->withId($id);
+        $this
+            ->given(
+                $aPullRequest
             )
-        );
-
-        $this->assertEquals($expectedQuote, $quote);
+            ->when(
+                new CalculateQuoteCommand($id, $code, $revisionDueDate, $assignedReviewers)
+            )
+            ->then(
+                new QuoteCalculated($id, $expectedQuote)
+            );
     }
 
     public function provider(): array
     {
         return [
-            ['aaaa', [1], '2019-11-03', 11000],
-            [str_pad('', 110, "\n"), [1], '2019-11-03', 12000],
-            [str_pad('', 251, "\n"), [1], '2019-11-03', 12500],
-            [str_pad('', 501, "\n"), [1], '2019-11-03', 15000],
-            [str_pad('', 1001, "\n"), [1], '2019-11-03', 20000],
-            [str_pad('', 1001, "\n"), [1, 2, 3], '2019-11-03', 40000],
-            [str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(10), 40000],
-            [str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(6), 40025],
-            [str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(4), 45000],
-            [str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(1), 50000],
+            ['some id', 'aaaa', [1], '2019-11-03', 11000],
+            ['some id', str_pad('', 110, "\n"), [1], '2019-11-03', 12000],
+            ['some id', str_pad('', 251, "\n"), [1], '2019-11-03', 12500],
+            ['some id', str_pad('', 501, "\n"), [1], '2019-11-03', 15000],
+            ['some id', str_pad('', 1001, "\n"), [1], '2019-11-03', 20000],
+            ['some id', str_pad('', 1001, "\n"), [1, 2, 3], '2019-11-03', 40000],
+            ['some id', str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(10), 40000],
+            ['some id', str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(6), 40025],
+            ['some id', str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(4), 45000],
+            ['some id', str_pad('', 1001, "\n"), [1, 2, 3], $this->addInterval(1), 50000],
         ];
     }
 

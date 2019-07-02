@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\UseCase;
 
+use App\Event\NotifyPullRequestCreationToReviewerSended;
 use App\Service\MailerService;
 
 class NotifyPullRequestCreationToReviewerUseCase implements CommandHandler
@@ -20,11 +21,12 @@ class NotifyPullRequestCreationToReviewerUseCase implements CommandHandler
 
     /**
      * @param NotifyPullRequestCreationToReviewerCommand $command
+     * @return DomainEventList
      */
     public function handle(Command $command): DomainEventList
     {
         $this->mailerService->send('Hello reviewer, You have a pull request to review.', $command->reviewer());
 
-        return DomainEventList::fromDomainEvents();
+        return DomainEventList::fromDomainEvents(new NotifyPullRequestCreationToReviewerSended($command->id(), $command->reviewer()));
     }
 }

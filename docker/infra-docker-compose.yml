@@ -1,0 +1,19 @@
+version: '3.5'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "codereview"
+      MYSQL_DATABASE: "codereview"
+      MYSQL_USER: "codereview"
+      MYSQL_PASSWORD: "codereview"
+    networks:
+      - phpmad-codereview-network
+
+networks:
+  phpmad-codereview-network:
+    driver: bridge
+    name: phpmad-codereview-network

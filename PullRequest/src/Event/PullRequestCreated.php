@@ -34,15 +34,22 @@ class PullRequestCreated implements DomainEvent
      */
     private $id;
 
+    /**
+     * @var int
+     */
+    private $quote;
+
     public function __construct(
         string $id,
         string $code,
         string $writer,
+        int $quote,
         DateTimeImmutable $revisionDueDate,
         array $assignedReviewers
     ) {
         $this->code              = $code;
         $this->writer            = $writer;
+        $this->quote = $quote;
         $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
         $this->id                = $id;
@@ -71,5 +78,10 @@ class PullRequestCreated implements DomainEvent
     public function streamId(): string
     {
         return $this->id;
+    }
+
+    public function quote(): int
+    {
+        return $this->quote;
     }
 }

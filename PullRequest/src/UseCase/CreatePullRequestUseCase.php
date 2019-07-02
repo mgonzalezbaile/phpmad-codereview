@@ -13,6 +13,7 @@ class CreatePullRequestUseCase implements CommandHandler
 {
     /**
      * @param CreatePullRequestCommand $command
+     * @return DomainEventList
      */
     public function handle(Command $command): DomainEventList
     {
@@ -29,6 +30,7 @@ class CreatePullRequestUseCase implements CommandHandler
             $command->id(),
             $command->code(),
             $command->writer(),
+            $command->quote(),
             $revisionDate,
             $command->assignedReviewers()
         ));
@@ -40,6 +42,7 @@ class CreatePullRequestUseCase implements CommandHandler
             ->withId($event->streamId())
             ->withCode($event->code())
             ->withWriter($event->writer())
+            ->withQuote($event->quote())
             ->withRevisionDueDate($event->revisionDueDate())
             ->withIsMerged(false)
             ->withAssignedReviewers($event->assignedReviewers());

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Event;
 
 use App\UseCase\DomainEvent;
+use App\UseCase\DomainEventFailure;
 
-class ApprovePullRequestFailed implements DomainEvent
+class ApprovePullRequestFailed implements DomainEvent, DomainEventFailure
 {
     const APPROVER_CANNOT_APPROVE_REASON = 'approver cannot approve';
 
@@ -34,5 +35,10 @@ class ApprovePullRequestFailed implements DomainEvent
     public function streamId(): string
     {
         return $this->pullRequestId;
+    }
+
+    public function reason(): string
+    {
+        return $this->failureReason;
     }
 }

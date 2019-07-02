@@ -1,10 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Event;
 
-namespace App\UseCase;
+use App\UseCase\DomainEvent;
 
-class NotifyPullRequestCreationToReviewerCommand implements Command
+class NotifyPullRequestCreationToReviewerSended implements DomainEvent
 {
     /**
      * @var string
@@ -22,7 +22,7 @@ class NotifyPullRequestCreationToReviewerCommand implements Command
         $this->id = $id;
     }
 
-    public function id(): string
+    public function streamId(): string
     {
         return $this->id;
     }

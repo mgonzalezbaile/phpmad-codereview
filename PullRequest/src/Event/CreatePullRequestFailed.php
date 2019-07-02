@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Event;
 
 use App\UseCase\DomainEvent;
+use App\UseCase\DomainEventFailure;
 
-class CreatePullRequestFailed implements DomainEvent
+class CreatePullRequestFailed implements DomainEvent, DomainEventFailure
 {
     /**
      * @var string
@@ -26,5 +27,10 @@ class CreatePullRequestFailed implements DomainEvent
     public function streamId(): string
     {
         return '';
+    }
+
+    public function reason(): string
+    {
+        return $this->reason;
     }
 }

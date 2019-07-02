@@ -4,27 +4,54 @@ declare(strict_types=1);
 
 namespace App\Tests\UseCase;
 
-use App\Tests\Double\MailerServiceSpy;
+use App\Entity\PullRequest;
+use App\Event\NotifyPullRequestCreationToReviewerSended;
+use App\Event\PullRequestCreated;
+use App\Event\QuoteCalculated;
+use App\Repository\PullRequestRepository;
 use App\UseCase\ProcessPullRequestCreation;
 use App\UseCase\ProcessPullRequestCreationCommand;
-use PHPUnit\Framework\TestCase;
 
-class ProcessPullRequestCreationTest extends TestCase
+class ProcessPullRequestCreationTest extends UseCaseScenario
 {
     public function testShouldManagePullRequestCreationProcess()
     {
-        $mailerSpy = new MailerServiceSpy();
-
+        $id                = 'some id';
         $writer            = 'writer';
         $code              = 'code';
         $assignedReviewers = ['reviewer1'];
         $revisionDueDate   = '2019-01-01';
-        $pullRequest       = (new ProcessPullRequestCreation($mailerSpy))->handle(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
+        $revisionDueDateObject   = \DateTimeImmutable::createFromFormat('Y-m-d', $revisionDueDate);
+        $quote             = 11000;
+        $aPullRequest = (new PullRequest())->withId($id);
 
-        $this->assertEquals($writer, $pullRequest->getWriter());
-        $this->assertEquals($code, $pullRequest->getCode());
-        $this->assertEquals($assignedReviewers, $pullRequest->getAssignedReviewers());
-        $this->assertEquals(11000, $pullRequest->getQuote());
-        $this->assertEquals(count($assignedReviewers), $mailerSpy->sentMethodTimesCalled());
+        $this
+            ->setUpScenario()
+            ->withUseCase(ProcessPullRequestCreation::class)
+            ->withRepository(PullRequestRepository::class);
+
+        $this
+            ->given(
+                $aPullRequest
+            )
+            ->when(
+                new ProcessPullRequestCreationCommand($id, $writer, $code, $assignedReviewers, $revisionDueDate)
+            )
+            ->then(
+                new QuoteCalculated($id, $quote),
+                new PullRequestCreated($id, $code, $writer, $quote, $revisionDueDateObject, $assignedReviewers),
+                new NotifyPullRequestCreationToReviewerSended($id, 'reviewer1')
+            )
+            ->andProjections(
+                (new PullRequest())
+                    ->withCode($code)
+                    ->withWriter($writer)
+                    ->withQuote($quote)
+                    ->withRevisionDueDate($revisionDueDateObject)
+                    ->withId($id)
+                    ->withIsMerged(false)
+                    ->withAssignedReviewers($assignedReviewers)
+            );
+        ;
     }
 }

@@ -25,16 +25,18 @@ class CreatePullRequestUseCaseTest extends UseCaseScenario
         $assignedReviewers  = ['some reviewer'];
         $revisionDueDate    = \DateTimeImmutable::createFromFormat('Y-m-d', $revisionDueDateStr);
         $expectedId         = 'some id';
+        $quote              = 1000;
 
         $this
             ->when(
-                new CreatePullRequestCommand($expectedId, $code, $writer, $revisionDueDateStr, $assignedReviewers)
+                new CreatePullRequestCommand($expectedId, $code, $writer, $quote, $revisionDueDateStr, $assignedReviewers)
             )
             ->then(
                 new PullRequestCreated(
                     $expectedId,
                     $code,
                     $writer,
+                    $quote,
                     $revisionDueDate,
                     $assignedReviewers
                 )
@@ -43,6 +45,7 @@ class CreatePullRequestUseCaseTest extends UseCaseScenario
                 (new PullRequest())
                     ->withCode($code)
                     ->withWriter($writer)
+                    ->withQuote($quote)
                     ->withRevisionDueDate($revisionDueDate)
                     ->withId($expectedId)
                     ->withIsMerged(false)
