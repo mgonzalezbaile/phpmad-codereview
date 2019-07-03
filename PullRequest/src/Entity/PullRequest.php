@@ -32,12 +32,22 @@ class PullRequest implements AggregateRoot
     /**
      * @ORM\Column(type="array", nullable=true)
      */
-    private $assignedReviewers;
+    private $assignedReviewers = [];
+
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $approvers = [];
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $isMerged;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isAlreadyApproved;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -62,6 +72,16 @@ class PullRequest implements AggregateRoot
     public function assignedReviewers()
     {
         return $this->assignedReviewers;
+    }
+
+    public function wasAlreadyApproved()
+    {
+        return $this->isAlreadyApproved;
+    }
+
+    public function approvers()
+    {
+        return $this->approvers;
     }
 
     public function withId($id): self
@@ -92,6 +112,14 @@ class PullRequest implements AggregateRoot
     {
         $clone                    = clone $this;
         $clone->assignedReviewers = $assignedReviewers;
+
+        return $clone;
+    }
+
+    public function withIsAlreadyApproved($isAlreadyApproved): self
+    {
+        $clone                    = clone $this;
+        $clone->isAlreadyApproved = $isAlreadyApproved;
 
         return $clone;
     }
@@ -133,6 +161,13 @@ class PullRequest implements AggregateRoot
         $clone        = clone $this;
         $clone->quote = $quote;
 
+        return $clone;
+    }
+
+    public function withApprovers($approvers): self
+    {
+        $clone = clone $this;
+        $clone->approvers = $approvers;
         return $clone;
     }
 }
