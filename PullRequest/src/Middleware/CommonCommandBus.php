@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
-class CommonCommandHandlerBus
+class CommonCommandBus
 {
     /**
      * @var ContainerInterface
@@ -68,13 +68,13 @@ class CommonCommandHandlerBus
     public function handle(Command $command): CommandResponse
     {
         try {
-            $this->entityManager->beginTransaction();
+            $this->entityManager->beginTransaction(); //TrxDecorator
 
-            $domainEvents = $this->useCase->handle($command);
+            $domainEvents = $this->useCase->handle($command); //HandleCommandDecorator
 
-            $aggregateRootList = $this->projectEvents($domainEvents);
+            $aggregateRootList = $this->projectEvents($domainEvents); //ProjectEventsDecorator
 
-            $this->persist($aggregateRootList);
+            $this->persist($aggregateRootList); //PersistDataDecorator
 
             $this->entityManager->commit();
 
@@ -98,10 +98,13 @@ class CommonCommandHandlerBus
         $aggregateRootList = AggregateRootList::empty();
         foreach ($domainEvents as $domainEvent) {
             $projectMethod = $this->projectMethodOf($domainEvent);
+            $aggregateRoot = $this->repository->find($domainEvent->streamId());
 
             if (method_exists($this->useCase, $projectMethod) && $this->repository) {
-                $newAggregateRoots = $this->useCase->$projectMethod($domainEvent, $this->repository->find($domainEvent->streamId()));
+                $newAggregateRoots = $this->useCase->$projectMethod($domainEvent, $aggregateRoot);
                 $aggregateRootList = $aggregateRootList->appendAggregateRootList($newAggregateRoots);
+            } else {
+                $aggregateRootList = $aggregateRootList->addAggregateRoot($aggregateRoot);
             }
         }
 

@@ -6,17 +6,18 @@ namespace App\UseCase;
 
 use ArrayIterator;
 use IteratorAggregate;
+use Webmozart\Assert\Assert;
 
 class AggregateRootList implements IteratorAggregate
 {
     /**
-     * @var AggregateRoot
+     * @var array
      */
-    private $projections;
+    private $aggregateRoots;
 
-    private function __construct(array $projections)
+    private function __construct(array $aggregateRoots)
     {
-        $this->projections = $projections;
+        $this->aggregateRoots = $aggregateRoots;
     }
 
     public static function empty(): self
@@ -31,16 +32,21 @@ class AggregateRootList implements IteratorAggregate
 
     public function getIterator(): ArrayIterator
     {
-        return new ArrayIterator($this->projections);
+        return new ArrayIterator($this->aggregateRoots);
     }
 
     public function asArray(): array
     {
-        return $this->projections;
+        return $this->aggregateRoots;
     }
 
     public function appendAggregateRootList(self $projectionList): self
     {
-        return new self(array_merge($this->projections, $projectionList->asArray()));
+        return new self(array_merge($this->aggregateRoots, $projectionList->asArray()));
+    }
+
+    public function addAggregateRoot(?AggregateRoot $aggregateRoot): self
+    {
+        return new self(array_filter(array_merge($this->aggregateRoots, [$aggregateRoot])));
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Middleware\CommonCommandHandlerBus;
+use App\Middleware\CommonCommandBus;
 use App\Repository\PullRequestRepository;
 use App\UseCase\ApprovePullRequestCommand;
 use App\UseCase\ApprovePullRequestUseCase;
@@ -24,11 +24,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class PullRequestController extends AbstractController
 {
     /**
-     * @var CommonCommandHandlerBus
+     * @var CommonCommandBus
      */
     private $commandBus;
 
-    public function __construct(CommonCommandHandlerBus $commandBus)
+    public function __construct(CommonCommandBus $commandBus)
     {
         $this->commandBus = $commandBus;
     }

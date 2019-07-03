@@ -41,16 +41,6 @@ class ProcessPullRequestCreationTest extends UseCaseScenario
                 new QuoteCalculated($id, $quote),
                 new PullRequestCreated($id, $code, $writer, $quote, $revisionDueDateObject, $assignedReviewers),
                 new NotifyPullRequestCreationToReviewerSended($id, 'reviewer1')
-            )
-            ->andProjections(
-                (new PullRequest())
-                    ->withCode($code)
-                    ->withWriter($writer)
-                    ->withQuote($quote)
-                    ->withRevisionDueDate($revisionDueDateObject)
-                    ->withId($id)
-                    ->withIsMerged(false)
-                    ->withAssignedReviewers($assignedReviewers)
             );
     }
 }

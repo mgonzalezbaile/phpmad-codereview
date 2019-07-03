@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\UseCase;
 
 use App\Middleware\CommandResponse;
-use App\Middleware\CommonCommandHandlerBus;
+use App\Middleware\CommonCommandBus;
 use App\UseCase\Command;
 use App\UseCase\DomainEvent;
 use App\UseCase\AggregateRoot;
@@ -22,7 +22,7 @@ class UseCaseScenario extends KernelTestCase
     private $entityManager;
 
     /**
-     * @var CommonCommandHandlerBus
+     * @var CommonCommandBus
      */
     private $commandBus;
 
@@ -39,7 +39,7 @@ class UseCaseScenario extends KernelTestCase
     public function setUp()
     {
         $kernel              = self::bootKernel();
-        $this->commandBus    = $kernel->getContainer()->get(CommonCommandHandlerBus::class);
+        $this->commandBus    = $kernel->getContainer()->get(CommonCommandBus::class);
         $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
         $this->tool          = new SchemaTool($this->entityManager);
         $this->tool->dropSchema($this->entityManager->getMetadataFactory()->getAllMetadata());
@@ -63,9 +63,9 @@ class UseCaseScenario extends KernelTestCase
         return $this;
     }
 
-    public function withRepository(string $projector): self
+    public function withRepository(string $repository): self
     {
-        $this->commandBus->withRepository($projector);
+        $this->commandBus->withRepository($repository);
 
         return $this;
     }

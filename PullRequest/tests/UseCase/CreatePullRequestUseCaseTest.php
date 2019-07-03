@@ -12,13 +12,18 @@ use App\UseCase\CreatePullRequestUseCase;
 
 class CreatePullRequestUseCaseTest extends UseCaseScenario
 {
-    public function testShouldCreatePullRequest()
+    public function setUp()
     {
+        parent::setUp();
+
         $this
             ->setUpScenario()
             ->withUseCase(CreatePullRequestUseCase::class)
             ->withRepository(PullRequestRepository::class);
+    }
 
+    public function testShouldCreatePullRequest()
+    {
         $code               = 'some code';
         $writer             = 'some writer';
         $revisionDueDateStr = '2019-01-01';
