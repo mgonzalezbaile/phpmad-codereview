@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
-
-class ProcessPullRequestCreationCommand
+class ProcessPullRequestCreationCommand implements Command
 {
+    /**
+     * @var string
+     */
+    private $id;
+
     /**
      * @var string
      */
@@ -26,12 +31,18 @@ class ProcessPullRequestCreationCommand
      */
     private $writer;
 
-    public function __construct(string $writer, string $code, array $assignedReviewers, string $revisionDueDate)
+    public function __construct(string $id, string $writer, string $code, array $assignedReviewers, string $revisionDueDate)
     {
+        $this->id                = $id;
         $this->code              = $code;
         $this->assignedReviewers = $assignedReviewers;
         $this->revisionDueDate   = $revisionDueDate;
         $this->writer            = $writer;
+    }
+
+    public function id(): string
+    {
+        return $this->id;
     }
 
     public function code(): string

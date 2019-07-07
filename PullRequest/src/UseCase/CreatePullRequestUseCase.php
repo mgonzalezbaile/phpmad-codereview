@@ -1,29 +1,53 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
-
 use App\Entity\PullRequest;
+use App\Event\CreatePullRequestFailed;
+use App\Event\PullRequestCreated;
+use DateTimeImmutable;
 
-class CreatePullRequestUseCase
+class CreatePullRequestUseCase implements CommandHandler
 {
-    public function execute(CreatePullRequestCommand $command): PullRequest
+    /**
+     * @param CreatePullRequestCommand $command
+     *
+     * @return DomainEventList
+     */
+    public function handle(Command $command): DomainEventList
     {
-        // Validation
         if (empty($command->code())) {
-            throw new \DomainException('Code cannot be empty');
+            return DomainEventList::fromDomainEvents(CreatePullRequestFailed::dueTo('Wrong revision due date format given: ' . $command->revisionDueDate()));
         }
 
-        // Create Pull Request
-        $pullRequest = new PullRequest();
-        $pullRequest->setCode($command->code());
-        $pullRequest->setWriter($command->writer());
-        $pullRequest->setCreatedAt(new \DateTime());
-        $pullRequest->setRevisionDueDate(\DateTime::createFromFormat('Y-m-d', $command->revisionDueDate()));
-        $pullRequest->setIsMerged(false);
-        $pullRequest->setAssignedReviewers($command->assignedReviewers());
+        $revisionDate = DateTimeImmutable::createFromFormat('Y-m-d', $command->revisionDueDate());
+        if (!$revisionDate) {
+            return DomainEventList::fromDomainEvents(CreatePullRequestFailed::dueTo('Wrong revision due date format given: ' . $command->revisionDueDate()));
+        }
 
-        return $pullRequest;
+        return DomainEventList::fromDomainEvents(new PullRequestCreated(
+            $command->id(),
+            $command->code(),
+            $command->writer(),
+            $command->quote(),
+            $revisionDate,
+            $command->assignedReviewers()
+        ));
+    }
+
+    public function projectPullRequestCreated(PullRequestCreated $event, ?PullRequest $projection): AggregateRootList
+    {
+        $projection = (new PullRequest())
+            ->withId($event->streamId())
+            ->withCode($event->code())
+            ->withWriter($event->writer())
+            ->withQuote($event->quote())
+            ->withRevisionDueDate($event->revisionDueDate())
+            ->withIsMerged(false)
+            ->withAssignedReviewers($event->assignedReviewers());
+
+        return AggregateRootList::fromAggregateRoots($projection);
     }
 }

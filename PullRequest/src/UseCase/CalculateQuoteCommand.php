@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\UseCase;
 
-
-class CalculateQuoteCommand
+class CalculateQuoteCommand implements Command
 {
+    /**
+     * @var string
+     */
+    private $id;
+
     /**
      * @var string
      */
@@ -22,13 +27,20 @@ class CalculateQuoteCommand
     private $assignedReviewers;
 
     public function __construct(
+        string $id,
         string $code,
         string $revisionDueDate,
         array $assignedReviewers
     ) {
-        $this->code = $code;
-        $this->revisionDueDate = $revisionDueDate;
+        $this->code              = $code;
+        $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
+        $this->id                = $id;
+    }
+
+    public function id(): string
+    {
+        return $this->id;
     }
 
     public function code(): string

@@ -1,158 +1,173 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
-use App\Service\KataMailerService;
+use App\UseCase\AggregateRoot;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PullRequestRepository")
  * @ORM\Table(name="pull_request")
  */
-class PullRequest
+class PullRequest implements AggregateRoot
 {
     /**
      * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $code;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     private $writer;
 
     /**
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="array", nullable=true)
      */
-    private $assignedReviewers;
+    private $assignedReviewers = [];
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $approvers = [];
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $isMerged;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isAlreadyApproved;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $createdAt;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $updatedAt;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $revisionDueDate;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="float", nullable=true)
      */
     private $quote;
 
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getCode(): ?string
-    {
-        return $this->code;
-    }
-
-    public function setCode(string $code): self
-    {
-        $this->code = $code;
-
-        return $this;
-    }
-
-    public function getWriter(): ?string
-    {
-        return $this->writer;
-    }
-
-    public function setWriter(string $writer): self
-    {
-        $this->writer = $writer;
-
-        return $this;
-    }
-
-    public function getAssignedReviewers(): ?array
+    public function assignedReviewers()
     {
         return $this->assignedReviewers;
     }
 
-    public function setAssignedReviewers(array $assignedReviewers): self
+    public function wasAlreadyApproved()
     {
-        $this->assignedReviewers = $assignedReviewers;
-
-        return $this;
+        return $this->isAlreadyApproved;
     }
 
-    public function getIsMerged(): ?bool
+    public function approvers()
     {
-        return $this->isMerged;
+        return $this->approvers;
     }
 
-    public function setIsMerged(bool $isMerged): self
+    public function withId($id): self
     {
-        $this->isMerged = $isMerged;
+        $clone     = clone $this;
+        $clone->id = $id;
 
-        return $this;
+        return $clone;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function withCode($code): self
     {
-        return $this->createdAt;
+        $clone       = clone $this;
+        $clone->code = $code;
+
+        return $clone;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function withWriter($writer): self
     {
-        $this->createdAt = $createdAt;
+        $clone         = clone $this;
+        $clone->writer = $writer;
 
-        return $this;
+        return $clone;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function withAssignedReviewers($assignedReviewers): self
     {
-        return $this->updatedAt;
+        $clone                    = clone $this;
+        $clone->assignedReviewers = $assignedReviewers;
+
+        return $clone;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function withIsAlreadyApproved($isAlreadyApproved): self
     {
-        $this->updatedAt = $updatedAt;
+        $clone                    = clone $this;
+        $clone->isAlreadyApproved = $isAlreadyApproved;
 
-        return $this;
+        return $clone;
     }
 
-    public function getQuote()
+    public function withIsMerged($isMerged): self
     {
-        return $this->quote;
+        $clone           = clone $this;
+        $clone->isMerged = $isMerged;
+
+        return $clone;
     }
 
-    public function setQuote(float $quote): void
+    public function withCreatedAt($createdAt): self
     {
-        $this->quote = $quote;
+        $clone            = clone $this;
+        $clone->createdAt = $createdAt;
+
+        return $clone;
     }
 
-    public function getRevisionDueDate(): \DateTime
+    public function withUpdatedAt($updatedAt): self
     {
-        return $this->revisionDueDate;
+        $clone            = clone $this;
+        $clone->updatedAt = $updatedAt;
+
+        return $clone;
     }
 
-    public function setRevisionDueDate(\DateTimeInterface $revisionDueDate): void
+    public function withRevisionDueDate($revisionDueDate): self
     {
-        $this->revisionDueDate = $revisionDueDate;
+        $clone                  = clone $this;
+        $clone->revisionDueDate = $revisionDueDate;
+
+        return $clone;
+    }
+
+    public function withQuote($quote): self
+    {
+        $clone        = clone $this;
+        $clone->quote = $quote;
+
+        return $clone;
+    }
+
+    public function withApprovers($approvers): self
+    {
+        $clone = clone $this;
+        $clone->approvers = $approvers;
+        return $clone;
     }
 }

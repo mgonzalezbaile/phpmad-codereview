@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\PullRequest;
@@ -17,5 +19,10 @@ class PullRequestRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, PullRequest::class);
+    }
+
+    public function ofId($id): ?PullRequest
+    {
+        return $this->find($id);
     }
 }

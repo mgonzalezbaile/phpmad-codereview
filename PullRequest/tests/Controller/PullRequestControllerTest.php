@@ -4,16 +4,39 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class PullRequestControllerTest extends WebTestCase
 {
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
+     * @var SchemaTool
+     */
+    private $tool;
+
+    public function setUp()
+    {
+        $kernel              = self::bootKernel();
+        $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
+        $this->tool          = new SchemaTool($this->entityManager);
+        $this->tool->dropSchema($this->entityManager->getMetadataFactory()->getAllMetadata());
+        $this->tool->createSchema($this->entityManager->getMetadataFactory()->getAllMetadata());
+    }
+
+    public function tearDown()
+    {
+        $this->tool->dropSchema($this->entityManager->getMetadataFactory()->getAllMetadata());
+    }
+
     public function testNew()
     {
         $client = static::createClient();
-
-        $kernel = self::bootKernel();
 
         $code              = 'aaaaaa';
         $writer            = 'asd';
@@ -31,9 +54,6 @@ class PullRequestControllerTest extends WebTestCase
         );
 
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $objectManager = $client->getContainer()->get(ObjectManager::class);
-        $this->assertEquals(true, $objectManager->isPersistCalled());
-        $this->assertEquals(true, $objectManager->isFlushCalled());
     }
 
     public function testNewFail()
@@ -48,7 +68,7 @@ class PullRequestControllerTest extends WebTestCase
             [
                 'code'              => '',
                 'writer'            => '123',
-                'assignedReviewers' => [1],
+                'assignedReviewers' => ['reviewer1'],
                 'revisionDueDate'   => '2019-01-01',
             ]
         );

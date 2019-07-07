@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Entity\PullRequest;
+use App\Middleware\CommonCommandBus;
+use App\Repository\PullRequestRepository;
+use App\UseCase\ApprovePullRequestCommand;
+use App\UseCase\ApprovePullRequestUseCase;
+use App\UseCase\DomainEventFailure;
 use App\UseCase\ProcessPullRequestCreation;
 use App\UseCase\ProcessPullRequestCreationCommand;
-use Doctrine\Common\Persistence\ObjectManager;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,19 +24,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class PullRequestController extends AbstractController
 {
     /**
-     * @var ObjectManager
+     * @var CommonCommandBus
      */
-    private $objectManager;
+    private $commandBus;
 
-    /**
-     * @var ProcessPullRequestCreation
-     */
-    private $processPullRequestCreation;
-
-    public function __construct(ObjectManager $objectManager, ProcessPullRequestCreation $processPullRequestCreation)
+    public function __construct(CommonCommandBus $commandBus)
     {
-        $this->objectManager            = $objectManager;
-        $this->processPullRequestCreation = $processPullRequestCreation;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -38,40 +38,47 @@ class PullRequestController extends AbstractController
      */
     public function new(Request $request): JsonResponse
     {
-        $writer = $request->get('writer');
-        $code = $request->get('code');
+        $writer            = $request->get('writer');
+        $code              = $request->get('code');
         $assignedReviewers = $request->get('assignedReviewers');
-        $revisionDueDate = $request->get('revisionDueDate');
+        $revisionDueDate   = $request->get('revisionDueDate');
+        $id                = Uuid::uuid4()->toString();
 
-        try {
-            $pullRequest = $this->processPullRequestCreation->execute(new ProcessPullRequestCreationCommand($writer, $code, $assignedReviewers, $revisionDueDate));
-        } catch (\DomainException $exception){
-            return new JsonResponse(['error' => 'Code is required'], Response::HTTP_CONFLICT);
+        $commandResponse = $this->commandBus
+            ->withUseCase(ProcessPullRequestCreation::class)
+            ->withRepository(PullRequestRepository::class)
+            ->handle(new ProcessPullRequestCreationCommand($id, $writer, $code, $assignedReviewers, $revisionDueDate));
+
+        foreach ($commandResponse->domainEventList()->asArray() as $domainEvent) {
+            if ($domainEvent instanceof DomainEventFailure) {
+                return new JsonResponse(['error' => $domainEvent->reason()], Response::HTTP_CONFLICT);
+            }
         }
 
-        // Persist
-        $this->objectManager->persist($pullRequest);
-        $this->objectManager->flush();
-
-        return new JsonResponse(array("id" => $pullRequest->getId()), Response::HTTP_CREATED);
+        return new JsonResponse(['id' => $id], Response::HTTP_CREATED);
     }
 
-
     /**
-     * @Route("/{id}", name="pull_request_edit", methods={"PUT"})
+     * @Route("/{pullRequestId}/approve", name="pull_request_approve", methods={"PUT"})
      */
-    public function edit(Request $request, PullRequest $pullRequest): JsonResponse
+    public function approve(Request $request, string $pullRequestId): JsonResponse
     {
-        $code = $request->get('code');
-        if (empty($code)) {
-            return new JsonResponse(array('error' => 'Code is required'), Response::HTTP_CONFLICT);
+        $reviewer = $request->get('reviewer');
+        if (empty($reviewer)) {
+            return new JsonResponse(['error' => 'Reviewer is required'], Response::HTTP_CONFLICT);
         }
 
-        $pullRequest->setCode($code);
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($pullRequest);
-        $entityManager->flush();
+        $commandResponse = $this->commandBus
+            ->withUseCase(ApprovePullRequestUseCase::class)
+            ->withRepository(PullRequestRepository::class)
+            ->handle(new ApprovePullRequestCommand($pullRequestId, $reviewer));
 
-        return new JsonResponse(array("id" => $pullRequest->getId()));
+        foreach ($commandResponse->domainEventList()->asArray() as $domainEvent) {
+            if ($domainEvent instanceof DomainEventFailure) {
+                return new JsonResponse(['error' => $domainEvent->reason()], Response::HTTP_CONFLICT);
+            }
+        }
+
+        return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }
 }

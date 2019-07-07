@@ -2,7 +2,3 @@ services:
   App\Service\MailerService:
     class: 'App\Tests\Double\MailerServiceSpy'
     public: true
-
-  Doctrine\Common\Persistence\ObjectManager:
-    class: 'App\Tests\Double\ObjectManagerSpy'
-    public: true

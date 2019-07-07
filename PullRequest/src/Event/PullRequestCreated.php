@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\UseCase;
+namespace App\Event;
 
-class CreatePullRequestCommand implements Command
+use App\UseCase\DomainEvent;
+use DateTimeImmutable;
+
+class PullRequestCreated implements DomainEvent
 {
     /**
      * @var string
@@ -17,7 +20,7 @@ class CreatePullRequestCommand implements Command
     private $writer;
 
     /**
-     * @var string
+     * @var DateTimeImmutable
      */
     private $revisionDueDate;
 
@@ -41,15 +44,15 @@ class CreatePullRequestCommand implements Command
         string $code,
         string $writer,
         int $quote,
-        string $revisionDueDate,
+        DateTimeImmutable $revisionDueDate,
         array $assignedReviewers
     ) {
         $this->code              = $code;
         $this->writer            = $writer;
+        $this->quote             = $quote;
         $this->revisionDueDate   = $revisionDueDate;
         $this->assignedReviewers = $assignedReviewers;
         $this->id                = $id;
-        $this->quote             = $quote;
     }
 
     public function code(): string
@@ -62,7 +65,7 @@ class CreatePullRequestCommand implements Command
         return $this->writer;
     }
 
-    public function revisionDueDate(): string
+    public function revisionDueDate(): DateTimeImmutable
     {
         return $this->revisionDueDate;
     }
@@ -72,7 +75,7 @@ class CreatePullRequestCommand implements Command
         return $this->assignedReviewers;
     }
 
-    public function id(): string
+    public function streamId(): string
     {
         return $this->id;
     }
