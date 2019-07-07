@@ -7,6 +7,8 @@ CodeReview is an imaginary tool for developers to push code to some CVS (Control
 # The Workshops
 [Mob programming: Refactorización de código legacy](https://www.slideshare.net/MaikelGonzlezBaile/mob-programming-refactorizacin-de-cdigo-legacy): First workshop where it is shown some testing and coding techniques to refactor an application whose code is totally coupled and tangled with the framework to be moved to a separated layer easier to be tested and maintained.
 
+[II - Vitaminando nuestros caso de uso](https://es.slideshare.net/MaikelGonzlezBaile/ii-vitaminando-nuestros-casos-de-uso): Use cases, Commands, Domain Events and functional testing get explained in this second workshop of the series.
+
 # Running the code
 ## Build docker containers
 ```
