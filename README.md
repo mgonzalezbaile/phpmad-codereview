@@ -15,6 +15,11 @@ CodeReview is an imaginary tool for developers to push code to some CVS (Control
 docker-compose -f docker/services-docker-compose.yml build
 docker-compose -f docker/infra-docker-compose.yml build
 ```
+## Install dependencies
+```
+docker-compose -f docker/services-docker-compose.yml run phpmad_pull_request_server composer install
+```
+
 
 ## Run migrations to generate MySQL tables
 ```
